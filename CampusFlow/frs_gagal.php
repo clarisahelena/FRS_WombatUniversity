@@ -19,7 +19,7 @@ function fmtTime($t){ return substr($t,0,5); }
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>FRS Bentrok – CampusFlow</title>
+<title>FRS Bentrok CampusFlow</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Calibri',Calibri,sans-serif}
 body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
