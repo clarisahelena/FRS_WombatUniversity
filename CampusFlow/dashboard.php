@@ -1,7 +1,7 @@
 <?php
 session_start(); //membuka session user saat ini
 if (!isset($_SESSION["id_user"])) {//kalo belom ada id, berarti user belom login
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit;
 }
 require_once "Koneksi.php";
