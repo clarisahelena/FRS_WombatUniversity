@@ -10,7 +10,7 @@ $nama = $_SESSION["nama"];
 $role = $_SESSION["role"];
 
 if ($role != "dosen") {
-    header("Location: ../dashboard.php");
+    header("Location: ../CampusFlow/dashboard.php");
     exit;
 }
 ?>

@@ -1,33 +1,49 @@
 <?php
 session_start();
-require_once "koneksi.php";
+require_once "Koneksi.php";
 
 $error = "";
 
-//cek apakah form dikirim
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $email = trim($_POST["email"] ?? "");
+    $email    = trim($_POST["email"] ?? "");
     $password = trim($_POST["password"] ?? "");
-    $sql = "SELECT NPM AS id_user, Email, Password, Nama FROM Mahasiswa WHERE Email = ?";
+    $role     = trim($_POST["role"] ?? "");
 
-    $stmt = $conn->prepare($sql);
-    $stmt->execute([$email]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    if ($role === 'mahasiswa') {
+        $stmt = $conn->prepare("SELECT NPM AS id_user, Email, Password, Nama FROM Mahasiswa WHERE Email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($user && $password === trim($user["Password"])) {
-        $_SESSION["id_user"] = $user["id_user"];
-        $_SESSION["nama"] = $user["Nama"];
-        $_SESSION["email"] = $user["Email"];
-        $_SESSION["role"] = $role;
+        if ($user && $password === trim($user["Password"])) {
+            $_SESSION["id_user"] = $user["id_user"];
+            $_SESSION["nama"]    = $user["Nama"];
+            $_SESSION["email"]   = $user["Email"];
+            $_SESSION["role"]    = "mahasiswa";
+            header("Location: CampusFlow/dashboard.php");
+            exit;
+        } else {
+            $error = "Email atau password salah.";
+        }
+    } elseif ($role === 'dosen') {
+        $stmt = $conn->prepare("SELECT NID AS id_user, Email, Password, Nama FROM Dosen WHERE Email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        header("Location: dashboard.php");
-        exit;
+        if ($user && $password === trim($user["Password"])) {
+            $_SESSION["id_user"] = $user["id_user"];
+            $_SESSION["nama"]    = $user["Nama"];
+            $_SESSION["email"]   = $user["Email"];
+            $_SESSION["role"]    = "dosen";
+            header("Location: WombatLecturer/dashboardDosen.php");
+            exit;
+        } else {
+            $error = "Email atau password salah.";
+        }
     } else {
-        $error = "Email atau password salah.";
+        $error = "Pilih role terlebih dahulu.";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -40,15 +56,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         .card{background:#fff;border-radius:16px;padding:40px 44px;width:440px;box-shadow:0 4px 24px rgba(0,0,0,.1)}
         .brand{font-size:22px;font-weight:800;color:#2563eb;margin-bottom:28px}
         h1{font-size:28px;font-weight:800;color:#0f172a;margin-bottom:6px}
-        .sub{font-size:16px;color:#64748b;margin-benbbottom:28px}
+        .sub{font-size:16px;color:#64748b;margin-bottom:28px}
         .tabs{display:flex;background:#f1f5f9;border-radius:10px;padding:4px;margin-bottom:24px;gap:4px}
         .tabs label{flex:1;text-align:center;padding:10px;border-radius:8px;font-size:15px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s}
-        input[type="radio"]{display:none}
-        #mahasiswa:checked ~ .tabs label[for="mahasiswa"],
+        input[name="role"]{display:none}
+        #role_mhs:checked ~ .tabs label[for="role_mhs"],
+        #role_dsn:checked ~ .tabs label[for="role_dsn"]{background:#fff;color:#2563eb;box-shadow:0 1px 3px rgba(0,0,0,.08)}
         .form-group{margin-bottom:18px}
         .form-group label{display:block;font-size:15px;font-weight:600;color:#374151;margin-bottom:7px}
-        .form-group input{width:100%;padding:13px 16px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-size:15px;font-family:'Calibri',Calibri,sans-serif}
-        .form-group input:focus{border-color:#0000FF}
+        .form-group input[type="email"],
+        .form-group input[type="password"]{width:100%;padding:13px 16px;border:1.5px solid #e2e8f0;border-radius:10px;outline:none;font-size:15px;font-family:'Calibri',Calibri,sans-serif}
+        .form-group input:focus{border-color:#2563eb}
         .btn{width:100%;border:none;border-radius:10px;padding:15px;color:#fff;font-weight:700;font-size:17px;cursor:pointer;background:linear-gradient(135deg,#2563eb,#7c3aed);box-shadow:0 4px 14px rgba(37,99,235,.3);font-family:'Calibri',Calibri,sans-serif}
         .btn:hover{opacity:.95}
         .error{background:#fee2e2;color:#b91c1c;padding:12px;border-radius:8px;font-size:14px;margin-bottom:18px;text-align:center}
@@ -57,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 </head>
 <body>
 <div class="card">
-    <div class="brand">WombatStudent</div>
+    <div class="brand">CampusFlow</div>
     <h1>Selamat Datang</h1>
     <div class="sub">Masuk untuk melanjutkan</div>
 
@@ -66,18 +84,20 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <?php endif; ?>
 
     <form method="POST">
-        <input type="radio" name="role" value="mahasiswa" id="mahasiswa" checked>
+        <input type="radio" name="role" value="mahasiswa" id="role_mhs" checked>
+        <input type="radio" name="role" value="dosen" id="role_dsn">
         <div class="tabs">
-            <label for="mahasiswa">Mahasiswa</label>
+            <label for="role_mhs">Mahasiswa</label>
+            <label for="role_dsn">Dosen</label>
         </div>
 
         <div class="form-group">
             <label>Email</label>
-            <input type="email" name="email" placeholder="nama@kampus.ac.id" required>
+            <input type="email" name="email" placeholder="email@kampus.ac.id" required>
         </div>
         <div class="form-group">
             <label>Password</label>
-            <input type="password" name="password" placeholder="••••••••" required>
+            <input type="password" name="password" placeholder="Masukkan password" required>
         </div>
 
         <button type="submit" class="btn">Masuk</button>

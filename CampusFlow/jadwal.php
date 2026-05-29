@@ -1,6 +1,6 @@
 <?php
 session_start(); //untuk memulai session user
-if (!isset($_SESSION["id_user"])) { header("Location: index.php"); exit; } //untuk cek apakah session punya id user, kalau ga ada balik ke halaman login dan hentikan program
+if (!isset($_SESSION["id_user"])) { header("Location: ../index.php"); exit; } //untuk cek apakah session punya id user, kalau ga ada balik ke halaman login dan hentikan program
 require_once "Koneksi.php"; //untuk menyambungkan ke koneksi database
 
 

@@ -3,11 +3,11 @@ session_start();
 
 //memeriksa apakah user sudah login
 if (!isset($_SESSION["id_user"])) {
-    header("Location: index.php");
+    header("Location: ../index.php");
     exit;
 }
 
-require_once "Koneksi.php";
+require_once __DIR__ . "/../Koneksi.php";
 
 // ambil data session
 $nama = $_SESSION["nama"];
