@@ -10,8 +10,11 @@ $nama  = $_SESSION["nama"];
 $role  = $_SESSION["role"];
 $npm   = $_SESSION["id_user"];
 
-// pilih semester
-$id_sem = '26-1';
+
+$periode = $_GET["periode"] ?? ($_SESSION["periode"] ?? "1");
+$semester = $_GET["semester"] ?? ($_SESSION["semester"] ?? "25");
+
+$id_sem = $semester . "-" . $periode;
 // $id_sem menyimpan kode semester aktif.
 // '26-1' adalah teks/string.
 $stmt = $conn->prepare("SELECT Periode, Tahun_Akademik FROM Semester WHERE Id_Sem = ?"); //ambil semester yang sedang berlangsung

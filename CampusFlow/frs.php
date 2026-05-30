@@ -7,7 +7,11 @@ if (!isset($_SESSION["id_user"])) {
 require_once "Koneksi.php";
 
 $npm    = $_SESSION["id_user"];
-$id_sem = '26-1';
+
+$periode = $_GET["periode"] ?? ($_SESSION["periode"] ?? "1");
+$semester = $_GET["semester"] ?? ($_SESSION["semester"] ?? "25");
+
+$id_sem = $semester . "-" . $periode;
 
 //query semester
 $stmt = $conn->prepare("SELECT Periode, Tahun_Akademik FROM Semester WHERE Id_Sem = ?");
@@ -105,9 +109,6 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
 .course-card{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start;box-shadow:0 1px 4px rgba(0,0,0,.06);cursor:pointer;border:2px solid transparent;transition:border-color .15s}
 .course-card.selected{border-color:#2563eb;background:#eff6ff}
 .course-card.hidden{display:none}
-.cb{width:22px;height:22px;border:2px solid #cbd5e1;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;transition:all .15s}
-.cb.checked{background:#2563eb;border-color:#2563eb}
-.cb.checked::after{content:'✓';color:#fff;font-size:13px;font-weight:700}
 .course-info{flex:1;min-width:0}
 .course-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
 .course-code{font-size:13px;font-weight:700;color:#64748b}

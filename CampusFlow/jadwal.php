@@ -3,8 +3,11 @@ session_start(); //untuk memulai session user
 if (!isset($_SESSION["id_user"])) { header("Location: ../index.php"); exit; } //untuk cek apakah session punya id user, kalau ga ada balik ke halaman login dan hentikan program
 require_once "Koneksi.php"; //untuk menyambungkan ke koneksi database
 
+$npm   = $_SESSION["id_user"];
+$periode = $_GET["periode"] ?? ($_SESSION["periode"] ?? "1");
+$semester = $_GET["semester"] ?? ($_SESSION["semester"] ?? "25");
 
-$id_sem = '26-1'; //variabel unttuk menentukan semester mana frs bisa dilakukan
+$id_sem = $semester . "-" . $periode;
 //query untuk ambil semester yang sedang berlangsung
 $stmt = $conn->prepare("
       SELECT Periode, Tahun_Akademik 
@@ -22,13 +25,14 @@ $stmt = $conn->prepare("
     FROM Jadwal j
     JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
     JOIN Dosen d ON j.NID = d.NID
-    WHERE j.Id_Sem = ?
+    JOIN Enroll e ON mk.Id_MK = e.Id_MK
+    WHERE j.Id_Sem = ? AND e.npm = ?
     ORDER BY
         CASE j.Hari WHEN 'Senin' THEN 1 WHEN 'Selasa' THEN 2 WHEN 'Rabu' THEN 3
                     WHEN 'Kamis' THEN 4 WHEN 'Jumat' THEN 5 WHEN 'Sabtu' THEN 6 ELSE 7 END,
         j.Jam_Mulai
 ");
-$stmt->execute([$id_sem]);
+$stmt->execute([$id_sem, $npm]);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC); //jadiin array of array
 
 function fmtTime($t){ return substr($t,0,5); } //ambil ham dan menir saja untuk waktu mulai dan selesai
