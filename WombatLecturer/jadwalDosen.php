@@ -7,7 +7,7 @@ if (!isset($_SESSION["id_user"])) {
     exit;
 }
 
-require_once __DIR__ . "/../Koneksi.php";
+require_once "../Koneksi.php";
 
 // ambil data session
 $nama = $_SESSION["nama"];
@@ -21,7 +21,7 @@ if ($role != "dosen") {
 }
 
 // semester aktif
-$id_sem = '26-1';
+$id_sem = '26-2';
 
 // ambil info semester
 $stmt = $conn->prepare("
@@ -45,19 +45,19 @@ $stmt = $conn->prepare("
         j.Jam_Selesai,
         j.Ruangan
     FROM Jadwal j
-    JOIN MataKuliah mk
-        ON j.Id_MK = mk.Id_MK
+    JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
     WHERE j.Id_Sem = ?
     AND j.NID = ?
     ORDER BY 
-        FIELD(j.Hari,
-            'Senin',
-            'Selasa',
-            'Rabu',
-            'Kamis',
-            'Jumat',
-            'Sabtu'
-        ),
+        CASE j.Hari 
+            WHEN 'Senin'  THEN 1
+            WHEN 'Selasa' THEN 2
+            WHEN 'Rabu'   THEN 3
+            WHEN 'Kamis'  THEN 4
+            WHEN 'Jumat'  THEN 5
+            WHEN 'Sabtu'  THEN 6
+            ELSE 7
+        END,
         j.Jam_Mulai
 ");
 
@@ -115,25 +115,25 @@ body{
     color:#2563eb;
 }
 
-.nav-links{
+.nav{
     display:flex;
-    gap:10px;
+    gap:8px;
 }
 
-.nav-links a{
+.nav a{
     text-decoration:none;
-    color:#64748b;
-    padding:10px 18px;
-    border-radius:8px;
+    color:#475569;
     font-weight:600;
+    padding:10px 18px;
+    border-radius:10px;
     transition:.2s;
 }
 
-.nav-links a:hover{
+.nav a:hover{
     background:#f1f5f9;
 }
 
-.nav-links a.active{
+.nav a.active{
     background:#dbeafe;
     color:#2563eb;
 }
@@ -285,10 +285,10 @@ tr:hover td{
         WombatLecturer
     </div>
 
-    <nav class="nav-links">
-        <a href="dashboard_dosen.php">Beranda</a>
-        <a href="jadwal_dosen.php" class="active">Jadwal Mengajar</a>
-        <a href="logout.php">Logout</a>
+    <nav class="nav">
+        <a href="dashboardDosen.php">Beranda</a>
+        <a href="jadwalDosen.php" class="active">Jadwal</a>
+        <a href="logout.php">Kelola</a>
     </nav>
 
 </div>
