@@ -85,15 +85,27 @@ body{
     color:#2563eb;
 }
 
-.nav a{
-    text-decoration:none;
-    margin-left:20px;
-    color:#475569;
-    font-weight:600;
+.nav{
+    display:flex;
+    gap:8px;
 }
 
-.main{
-    padding:40px;
+.nav a{
+    text-decoration:none;
+    color:#475569;
+    font-weight:600;
+    padding:10px 18px;
+    border-radius:10px;
+    transition:.2s;
+}
+
+.nav a:hover{
+    background:#f1f5f9;
+}
+
+.nav a.active{
+    background:#dbeafe;
+    color:#2563eb;
 }
 
 .card{
@@ -198,7 +210,7 @@ tr:hover{
     </div>
 
     <div class="nav">
-        <a href="dashboardDosen.php">Beranda</a>
+        <a href="dashboardDosen.php" class="active" >Beranda</a>
         <a href="jadwalDosen.php">Jadwal</a>
         <a href="kelola.php">Kelola</a>
     </div>
