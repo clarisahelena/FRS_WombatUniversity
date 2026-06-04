@@ -21,7 +21,11 @@ if ($role != "dosen") {
 }
 
 // semester aktif
-$id_sem = '26-2';
+$periode = $_GET["periode"] ?? ($_SESSION["periode"] ?? "1");
+$semester = $_GET["semester"] ?? ($_SESSION["semester"] ?? "25");
+
+$id_sem = $semester . "-" . $periode;
+
 
 // ambil info semester
 $stmt = $conn->prepare("

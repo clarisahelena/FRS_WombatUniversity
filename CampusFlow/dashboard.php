@@ -4,7 +4,7 @@ if (!isset($_SESSION["id_user"])) {//kalo belom ada id, berarti user belom login
     header("Location: ../index.php");
     exit;
 }
-require_once "Koneksi.php";
+require_once "../Koneksi.php";
 //mengambil data dari halaman login (session)
 $nama  = $_SESSION["nama"];
 $role  = $_SESSION["role"];

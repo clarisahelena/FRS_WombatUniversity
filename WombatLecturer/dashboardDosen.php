@@ -5,7 +5,7 @@ if (!isset($_SESSION["id_user"])) {
     header("Location: ../index.php");
     exit;
 }
-require_once "Koneksi.php";
+require_once "../Koneksi.php";
 
 $nama = $_SESSION["nama"];
 $role = $_SESSION["role"];
