@@ -292,7 +292,7 @@ tr:hover td{
     <nav class="nav">
         <a href="dashboardDosen.php">Beranda</a>
         <a href="jadwalDosen.php" class="active">Jadwal</a>
-        <a href="logout.php">Kelola</a>
+        <a href="kelola.php">Kelola</a>
     </nav>
 
 </div>

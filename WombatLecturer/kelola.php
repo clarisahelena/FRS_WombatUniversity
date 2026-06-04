@@ -109,8 +109,34 @@ $sksColors = [2=>'#ef4444', 3=>'#f97316', 4=>'#2563eb'];
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Calibri',Calibri,sans-serif}
 body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
 .topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:64px;flex-shrink:0}
-.nav-links{display:flex;gap:6px}
-.nav-links a{padding:10px 20px;border-radius:8px;font-size:16px;font-weight:600;color:#64748b;text-decoration:none}
+.nav{
+    display:flex;
+    gap:8px;
+}
+
+.nav a{
+    text-decoration:none;
+    color:#475569;
+    font-weight:600;
+    padding:10px 18px;
+    border-radius:10px;
+    transition:.2s;
+}
+
+.nav a:hover{
+    background:#f1f5f9;
+}
+
+.nav a.active{
+    background:#dbeafe;
+    color:#2563eb;
+}
+.nav-links{
+    display:flex;
+    gap:6px
+}
+.nav-links a{
+    padding:10px 20px;border-radius:8px;font-size:16px;font-weight:600;color:#64748b;text-decoration:none}
 .nav-links a:hover{background:#f1f5f9;color:#0f172a}
 .nav-links a.active{background:#eff6ff;color:#2563eb}
 .app-name{font-size:20px;font-weight:800;color:#2563eb}
@@ -178,7 +204,7 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
   <nav class="nav-links">
     <a href="dashboardDosen.php">Beranda</a>
     <a href="jadwalDosen.php">Jadwal</a>
-    <a href="kelola.php">Kelola</a>
+    <a href="kelola.php" class = "active">Kelola</a>
   </nav>
 </div>
 
@@ -264,10 +290,6 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
                 <input type="hidden" name="id_sem" value="<?= htmlspecialchars($id_sem) ?>">
                 
                 <select name="semester" id="semester">
-                        <option value="20">2020/2021</option>
-                        <option value="21">2021/2022</option>
-                        <option value="22">2022/2023</option>
-                        <option value="23">2023/2024</option>
                         <option value="24">2024/2025</option>
                         <option value="25">2025/2026</option>
                         <option value="26">2026/2027</option>
