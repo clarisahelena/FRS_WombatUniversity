@@ -108,6 +108,12 @@ body{
     color:#2563eb;
 }
 
+.main{
+    max-width:1200px;
+    margin:auto;
+    padding:40px;
+}
+
 .card{
     background:white;
     padding:30px;
