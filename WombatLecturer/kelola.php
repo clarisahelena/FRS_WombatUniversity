@@ -24,25 +24,23 @@ $id_sem = ($_SESSION["semester"] ?? "25") . '-' . ($_SESSION["periode"] ?? "1");
 
 //query semester
 $stmt = $conn->prepare("
-    SELECT Periode, 
-    Tahun_Akademik 
+    SELECT Periode, Tahun_Akademik 
     FROM Semester 
-    WHERE Id_Sem = ?");
+    WHERE id_Sem = ?");
 $stmt->execute([$id_sem]);
 $sem = $stmt->fetch(PDO::FETCH_ASSOC);
 $semLabel = trim($sem['Periode'] ?? 'Ganjil') . ' ' . ($sem['Tahun_Akademik'] ?? '2025') . '/' . (($sem['Tahun_Akademik'] ?? 2025) + 1);
 
 //ambil semua mata kuliah yang tersedia pada semester tertentu
-$stmt = $conn->prepare("
-    SELECT j.Id_Jadwal, mk.Id_MK, mk.Nama AS NamaMK, mk.SKS, j.Hari, j.Jam_Mulai, j.Jam_Selesai, j.NID, d.Nama AS NamaDosen
-    FROM Jadwal j
-    JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
-    JOIN Dosen d ON j.NID = d.NID
-    WHERE j.Id_Sem = ?
-    ORDER BY mk.Nama
+$stmtMK = $conn->prepare("
+    SELECT MK.Id_MK, MK.Nama AS NamaMK, d.NID AS NID, d.Nama AS NamaDosen, MK.SKS as SKS
+    FROM MataKuliah AS MK
+    JOIN Detail_Akademik AS da ON da.Id_MK=MK.Id_MK
+    JOIN Dosen as d ON d.NID = da.NID
+    WHERE da.Id_Sem = ?
 ");
-$stmt->execute([$id_sem]);
-$courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$stmtMK->execute([$id_sem]);
+$courses = $stmtMK->fetchAll(PDO::FETCH_ASSOC);
 
 //untuk menambah mata kuliah ke data base
 if(isset($_POST["tambah_mk"])) {
@@ -53,8 +51,16 @@ if(isset($_POST["tambah_mk"])) {
     $mulai = $_POST["mulai"];
     $selesai = $_POST["selesai"];
     $ruangan = $_POST["ruangan"];
+    $hari2 = $_POST["hari2"];
+    $mulai2 = $_POST["mulai2"];
+    $selesai2 = $_POST["selesai2"];
+    $ruangan2 = $_POST["ruangan2"];
+    $hari3 = $_POST["hari3"];
+    $mulai3 = $_POST["mulai3"];
+    $selesai3 = $_POST["selesai3"];
+    $ruangan3 = $_POST["ruangan3"];
 
-    //UNTUK MENANGANI KALAU MATA KULIAH SUDA ADS
+    //UNTUK MENANGANI KALAU MATA KULIAH BELOM ADA
     try {
         $conn->beginTransaction();
         $tambahMK = $conn->prepare("
@@ -71,16 +77,46 @@ if(isset($_POST["tambah_mk"])) {
         ");
 
         //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
-        $id_jadwal = substr($kode,-3).$semester.$periode;
+        $id_jadwal = substr($kode,-3).$semester.$periode.'1';
         
         $tambahJadwal->execute([$id_jadwal, $kode, $id_sem, $nid, $hari, $mulai, $selesai, $ruangan]);
-
+        
         //tambah juga ke detail akademik
         $tambahDetailAkademik = $conn->prepare("
-            INSERT INTO detail_akademik (nid, id_jadwal, id_mk)
+            INSERT INTO detail_akademik (nid, id_sem, id_mk)
             VALUES (?, ?, ?)
         ");
-        $tambahDetailAkademik -> execute([$nid, $id_jadwal, $kode]);
+        $tambahDetailAkademik -> execute([$nid, $id_sem, $kode]);
+
+        //tambah jadwal kedua
+        //kalau jadwal kedua diisi, masukkan ke database
+        if(!empty($hari2)) {
+            $tambahJadwal2 = $conn->prepare("
+            INSERT INTO Jadwal
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+
+            //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
+            $id_jadwal2 = substr($kode,-3).$semester.$periode.'2';
+            
+            $tambahJadwal2->execute([$id_jadwal2, $kode, $id_sem, $nid, $hari2, $mulai2, $selesai2, $ruangan2]);
+        }
+        
+        //tambah jadwal ketiga
+        //kalau jadwal ketiga diisi, masukkan ke database
+        if(!empty($hari3)) {
+            $tambahJadwal3 = $conn->prepare("
+            INSERT INTO Jadwal
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+
+            //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
+            $id_jadwal3 = substr($kode,-3).$semester.$periode.'3';
+            
+            $tambahJadwal3->execute([$id_jadwal3, $kode, $id_sem, $nid, $hari3, $mulai3, $selesai3, $ruangan3]);
+        }
+
+        
 
         $conn->commit();
         header("Location: kelola.php");
@@ -155,7 +191,7 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
 .sks-badge{font-size:12px;font-weight:700;color:#fff;padding:3px 10px;border-radius:20px}
 .edit-btn{border:none;border-radius:10px;padding:16px;font-size:15px;font-weight:700;cursor:pointer}
 .edit-btn.disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
-.edit-btn.active{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+.edit-btn{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
 .course-name{font-size:17px;font-weight:700;color:#0f172a;margin-bottom:7px;line-height:1.3}
 .course-meta{display:flex;gap:16px;font-size:14px;color:#64748b}
 .meta-item{display:flex;align-items:center;gap:5px}
@@ -181,6 +217,7 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
 .tambah-btn{width:100%;border:none;border-radius:10px;padding:16px;font-size:17px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px;}
 .tambah-btn.disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
 .tambah-btn.active{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+
 .nama-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
 .nama-group span:last-child{font-weight:700;color:#0f172a}
 .kode-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
@@ -195,6 +232,24 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
 .ruangan-group span:last-child{font-weight:700;color:#0f172a}
 .selesai-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
 .selesai-group span:last-child{font-weight:700;color:#0f172a}
+
+.hari2-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
+.hari2-group span:last-child{font-weight:700;color:#0f172a}
+.mulai2-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
+.mulai2-group span:last-child{font-weight:700;color:#0f172a}
+.ruangan2-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
+.ruangan2-group span:last-child{font-weight:700;color:#0f172a}
+.selesai2-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
+.selesai2-group span:last-child{font-weight:700;color:#0f172a}
+
+.hari3-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
+.hari3-group span:last-child{font-weight:700;color:#0f172a}
+.mulai3-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
+.mulai3-group span:last-child{font-weight:700;color:#0f172a}
+.ruangan3-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
+.ruangan3-group span:last-child{font-weight:700;color:#0f172a}
+.selesai3-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
+.selesai3-group span:last-child{font-weight:700;color:#0f172a}
 
 </style>
 </head>
@@ -217,6 +272,12 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
             $sksColorMap = [2=>'#ef4444', 3=>'#f97316', 4=>'#2563eb'];
             foreach ($courses as $c):
                 $badgeColor = $sksColorMap[$c['SKS']] ?? '#2563eb';
+                $jadwal = $conn->prepare("
+                    SELECT Hari, Jam_Mulai 
+                    FROM Jadwal 
+                    WHERE Id_MK = ? AND Id_Sem = ?");
+                $jadwal->execute([$c['Id_MK'], $id_sem]);
+                $dataJadwal = $jadwal->fetchAll(PDO::FETCH_ASSOC);
             ?>
             
             <div class="course-card">
@@ -238,9 +299,9 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
                             </span>
 
                             <?php if ($c['NID'] == $nid): ?>
-                                <button type="submit" class="edit-btn active">
+                                <a href="editMK.php?Id_MK=<?= $c['Id_MK'] ?>&Id_Sem=<?=$id_sem?>" class="edit-btn">
                                     Edit Mata Kuliah
-                                </button>
+                                </a>
                             <?php else: ?>
                                 <button class="edit-btn disabled" disabled>
                                     Tidak Bisa Edit
@@ -264,10 +325,11 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
                             <svg viewBox="0 0 24 24">
                                 <circle cx="12" cy="12" r="10"/>
                                 <polyline points="12 6 12 12 16 14"/></svg>
-                            </span>
-                            
-                            <?= htmlspecialchars($c['Hari']) ?>, 
-                            <?= fmtTime($c['Jam_Mulai']) ?>
+                                
+                                <?php foreach($dataJadwal as $d): ?>
+                                    | <?= htmlspecialchars($d['Hari']) ?>, <?= fmtTime($d['Jam_Mulai']) ?> 
+                                <?php endforeach; ?> |
+                            </span>      
                         </span>
                 </div>
             </div>
@@ -339,6 +401,8 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
                         <input type="text" name="sks" placeholder="Isi SKS Mata Kuliah" required>
                     </div>
 
+                    <span>Tambah jadwal 1 (wajib diisi)</span>
+
                     <div class="hari-group">
                         <span>Hari</span>
 
@@ -361,6 +425,58 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
                         <span>Ruangan</span>
 
                         <input type="text" name="ruangan" placeholder="Isi kode ruangan" required>
+                    </div>
+
+                    <span>Tambah jadwal 2</span>
+
+                    <div class="hari2-group">
+                        <span>Hari</span>
+
+                        <input type="text" name="hari2" placeholder="Isi hari">
+                    </div>
+
+                    <div class="mulai2-group">
+                        <span>Jam mulai</span>
+
+                        <input type="text" name="mulai2" placeholder="Isi jam mulai">
+                    </div>
+
+                    <div class="selesai2-group">
+                        <span>Jam selesai</span>
+
+                        <input type="text" name="selesai2" placeholder="Isi jam selesai">
+                    </div>
+
+                    <div class="ruangan2-group">
+                        <span>Ruangan</span>
+
+                        <input type="text" name="ruangan2" placeholder="Isi kode ruangan">
+                    </div>
+
+                    <span>Tambah jadwal 3</span>
+
+                    <div class="hari3-group">
+                        <span>Hari</span>
+
+                        <input type="text" name="hari3" placeholder="Isi hari">
+                    </div>
+
+                    <div class="mulai3-group">
+                        <span>Jam mulai</span>
+
+                        <input type="text" name="mulai3" placeholder="Isi jam mulai">
+                    </div>
+
+                    <div class="selesai3-group">
+                        <span>Jam selesai</span>
+
+                        <input type="text" name="selesai3" placeholder="Isi jam selesai">
+                    </div>
+
+                    <div class="ruangan3-group">
+                        <span>Ruangan</span>
+
+                        <input type="text" name="ruangan3" placeholder="Isi kode ruangan">
                     </div>
                     
                      <span>Anda akan tercatat otomatis sebagai dosen mata kuliah ini</span>

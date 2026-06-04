@@ -117,12 +117,12 @@ body{
 }
 
 .sem-card {
-    background: linear-gradient(135deg, #2563eb, #7c3aed);
-    color: white;
-    padding: 25px;
-    border-radius: 16px;
-    margin: 20px 0;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+    color:#fff;
+    border-radius:18px;
+    padding:30px;
+    margin-bottom:30px;
+    box-shadow:0 10px 25px rgba(37,99,235,.25);
 }
 
 .sem-label {
@@ -233,7 +233,7 @@ tr:hover{
     </div>
    
     <div class="table-header">
-    <div class="section-title">Seluruh Mata Kuliah Semester Ini</div>
+    <div class="section-title">Seluruh Jadwal Semester Ini</div>
   </div>
 
   <div class="table-wrap">
