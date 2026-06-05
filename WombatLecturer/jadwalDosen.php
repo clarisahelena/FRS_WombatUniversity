@@ -68,9 +68,19 @@ $stmt->execute([$id_sem, $nid]);
 
 $jadwalDosen = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+$SKSDosen = $conn->prepare("
+    SELECT SUM(mk.SKS) AS JumlahSKS
+    FROM Detail_Akademik AS DA
+    JOIN Matakuliah AS MK ON MK.Id_MK = DA.Id_MK
+    WHERE DA.NID = ?
+");
+
+$SKSDosen->execute([$nid]);
+$dataSKS = $SKSDosen->fetch(PDO::FETCH_ASSOC);
+
 // hitung total
 $totalMK = count($jadwalDosen);
-$totalSKS = array_sum(array_column($jadwalDosen, 'SKS'));
+$totalSKS = $dataSKS['JumlahSKS'];
 
 // format jam
 function fmtTime($t) {
@@ -319,9 +329,9 @@ tr:hover td{
 
     <!-- navigasi: Beranda, Jadwal, Kelola -->
     <nav class="nav">
-        <a href="/CampusFlow/WombatLecturer/dashboardDosen.php">Beranda</a>
-        <a href="/CampusFlow/WombatLecturer/jadwalDosen.php" class="active">Jadwal</a>
-        <a href="/CampusFlow/WombatLecturer/kelola.php">Kelola</a>
+        <a href="dashboardDosen.php">Beranda</a>
+        <a href="jadwalDosen.php" class="active">Jadwal</a>
+        <a href="kelola.php">Kelola</a>
     </nav>
 
 </div>

@@ -74,13 +74,13 @@ if(isset($_POST["tambah_mk"])) {
         //tambah juga di jadwal
         $tambahJadwal = $conn->prepare("
             INSERT INTO Jadwal
-            VALUES(?, 1, ?, ?, ?, ?, ?, ?, ?)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
         //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
         $id_jadwal = substr($kode,-3).$semester.$periode.'1';
         
-        $tambahJadwal->execute([$id_jadwal, $kode, $id_sem, $nid, $hari, $mulai, $selesai, $ruangan]);
+        $tambahJadwal->execute([$id_jadwal, 1, $kode, $id_sem, $nid, $hari, $mulai, $selesai, $ruangan]);
         
         //tambah juga ke detail akademik
         $tambahDetailAkademik = $conn->prepare("
@@ -94,13 +94,13 @@ if(isset($_POST["tambah_mk"])) {
         if(!empty($hari2)) {
             $tambahJadwal2 = $conn->prepare("
             INSERT INTO Jadwal
-            VALUES(?, 2, ?, ?, ?, ?, ?, ?, ?)
+            VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
 
             //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
             $id_jadwal2 = substr($kode,-3).$semester.$periode.'2';
             
-            $tambahJadwal2->execute([$id_jadwal2, $kode, $id_sem, $nid, $hari2, $mulai2, $selesai2, $ruangan2]);
+            $tambahJadwal2->execute([$id_jadwal2, 2, $kode, $id_sem, $nid, $hari2, $mulai2, $selesai2, $ruangan2]);
         }
         
         //tambah jadwal ketiga
@@ -108,13 +108,13 @@ if(isset($_POST["tambah_mk"])) {
         if(!empty($hari3)) {
             $tambahJadwal3 = $conn->prepare("
                 INSERT INTO Jadwal
-                VALUES(?, 3, ?, ?, ?, ?, ?, ?, ?)
+                VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
 
             //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
             $id_jadwal3 = substr($kode,-3).$semester.$periode.'3';
             
-            $tambahJadwal3->execute([$id_jadwal3, $kode, $id_sem, $nid, $hari3, $mulai3, $selesai3, $ruangan3]);
+            $tambahJadwal3->execute([$id_jadwal3, 3, $kode, $id_sem, $nid, $hari3, $mulai3, $selesai3, $ruangan3]);
         }
 
         
