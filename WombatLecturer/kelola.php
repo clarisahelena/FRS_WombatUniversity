@@ -354,14 +354,14 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
                 <input type="hidden" name="id_sem" value="<?= htmlspecialchars($id_sem) ?>">
                 
                 <select name="semester" id="semester">
-                        <option value="24">2024/2025</option>
-                        <option value="25">2025/2026</option>
-                        <option value="26">2026/2027</option>
+                        <option value="24" <?=$semester == "24" ? "selected" : ""?>>2024/2025</option>
+                        <option value="25" <?=$semester == "25" ? "selected" : ""?>>2025/2026</option>
+                        <option value="26" <?=$semester == "26" ? "selected" : ""?>>2026/2027</option>
                     </select>
 
                     <select name="periode" id="periode">
-                        <option value="1">Ganjil</option>
-                        <option value="2">Genap</option>
+                        <option value="1" <?= $periode == "1" ? "selected" : ""?>>Ganjil</option>
+                        <option value="2" <?= $periode == "2" ? "selected" : ""?>>Genap</option>
                     </select>
                     <button type="submit" class="tetapkan-btn active">
                         Tetapkan
