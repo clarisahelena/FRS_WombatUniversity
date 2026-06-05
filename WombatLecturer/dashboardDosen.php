@@ -47,6 +47,10 @@ $stmt = $conn->prepare("
     WHERE j.Id_Sem = ?
     ORDER BY mk.Nama
 ");
+
+
+
+
 $stmt->execute([$id_sem]);
 $allCourses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
