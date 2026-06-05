@@ -67,151 +67,167 @@ function fmtTime($t){
 
 <style>
 
+/* body: font default, latar abu terang */
 body{
     font-family:Calibri;
     background:#f1f5f9;
     margin:0;
 }
 
+/* TOPBAR - bar navigasi paling atas */
+
 .topbar{
-    height:64px;
+    height:4rem;
     background:white;
-    border-bottom:1px solid #ddd;
+    border-bottom:1px solid #ddd; /* garis pemisah bawah */
     display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 40px;
+    align-items:center; /* rata tengah vertikal */
+    justify-content:space-between; /* nama kiri, nav kanan */
+    padding:0 2.5rem;
 }
 
+/* nama app di pojok kiri */
 .app-name{
-    font-size:22px;
+    font-size:1.375rem;
     font-weight:bold;
     color:#2563eb;
 }
 
+/* container link navigasi */
 .nav{
     display:flex;
-    gap:8px;
+    gap:0.5rem;
 }
 
+/* tiap link navigasi */
 .nav a{
     text-decoration:none;
     color:#475569;
     font-weight:600;
-    padding:10px 18px;
-    border-radius:10px;
-    transition:.2s;
+    padding:0.625rem 1.125rem;
+    border-radius:0.625rem;
+    transition:.2s; /* animasi halus saat hover */
 }
 
+/* hover: background berubah saat mouse lewat */
 .nav a:hover{
     background:#f1f5f9;
 }
 
+/* link halaman yang lagi aktif */
 .nav a.active{
     background:#dbeafe;
     color:#2563eb;
 }
 
+/* MAIN - area konten utama */
+
 .main{
-    max-width:1200px;
-    margin:auto;
-    padding:40px;
+    max-width:68.75rem; /* batas lebar */
+    margin:auto; /* tengahin */
+    padding:2rem 2.5rem;
 }
 
-.card{
-    background:white;
-    padding:30px;
-    border-radius:14px;
-    width:320px;
-    box-shadow:0 2px 8px rgba(0,0,0,.08);
+/* heading sapaan "Halo, nama" */
+.main h1{
+    font-size:1.625rem;
+    color:#0f172a;
+    margin-bottom:0.25rem;
 }
+
+/* subtitle di bawah sapaan */
+.main p{
+    color:#64748b;
+    font-size:0.9375rem;
+    margin-bottom:1.5rem;
+}
+
+/* SEMESTER CARD - kartu info semester gradient biru-ungu */
 
 .sem-card {
-    background:linear-gradient(135deg,#2563eb,#7c3aed);
-    color:#fff;
-    border-radius:18px;
-    padding:30px;
-    margin-bottom:30px;
-    box-shadow:0 10px 25px rgba(37,99,235,.25);
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: white;
+    padding: 1.375rem 1.75rem;
+    border-radius: 1rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 0.625rem 1.5rem rgba(0,0,0,0.15); /* bayangan ngambang */
 }
 
+/* label kecil semester */
 .sem-label {
-    font-size: 14px;
+    font-size: 0.875rem;
     opacity: 0.9;
 }
 
+/* judul besar semester */
 .sem-title {
-    font-size: 26px;
+    font-size: 1.375rem;
     font-weight: bold;
-    margin-top: 8px;
+    margin-top: 0.25rem;
 }
 
-.card h2{
-    margin-top:0;
-}
+/* TABLE - tabel daftar mata kuliah */
 
-.btn{
-    display:inline-block;
-    margin-top:20px;
-    background:#2563eb;
-    color:white;
-    padding:12px 20px;
-    border-radius:10px;
-    text-decoration:none;
-    font-weight:bold;
-}
-
+/* pembungkus tabel: background putih + rounded */
 .table-wrap{
     background:white;
-    border-radius:14px;
-    overflow:hidden;
-    box-shadow:0 2px 8px rgba(0,0,0,.08);
-    margin-top:20px;
+    border-radius:0.875rem;
+    overflow:hidden; /* biar rounded corner keliatan */
+    box-shadow:0 0.125rem 0.5rem rgba(0,0,0,.08);
 }
 
+/* tabel full lebar */
 table{
     width:100%;
     border-collapse:collapse;
 }
 
+/* header tabel: background biru muda */
 th{
     background:#eff6ff;
     color:#1e3a8a;
     text-align:left;
-    padding:16px;
-    font-size:15px;
+    padding:1rem;
+    font-size:0.9375rem;
 }
 
+/* sel data */
 td{
-    padding:16px;
-    border-top:1px solid #e2e8f0;
+    padding:1rem;
+    border-top:1px solid #e2e8f0; /* garis tipis pemisah */
     color:#334155;
 }
 
+/* efek hover: baris berubah warna saat mouse lewat */
 tr:hover{
     background:#f8fafc;
 }
 
+/* judul section "Seluruh Jadwal Semester Ini" */
 .section-title{
-    font-size:24px;
+    font-size:1.375rem;
     font-weight:700;
     color:#0f172a;
-    margin-top:30px;
+    margin-bottom:1rem;
 }
 
+/* badge/tag jadwal (misal: "Senin, 10:00-12:00") */
 .jadwal-tag{
     background:#eff6ff;
     color:#2563eb;
-    padding:6px 10px;
-    border-radius:8px;
-    font-size:14px;
+    padding:0.3125rem 0.625rem;
+    border-radius:0.375rem;
+    font-size:0.875rem;
     font-weight:600;
 }
+
 </style>
 
 </head>
 
 <body>
+
+<!-- TOPBAR: navigasi atas, nama app + link menu -->
 
 <div class="topbar">
 
@@ -219,15 +235,20 @@ tr:hover{
         WombatLecturer
     </div>
 
+    <!-- navigasi: Beranda, Jadwal, Kelola -->
     <div class="nav">
-        <a href="dashboardDosen.php" class="active" >Beranda</a>
-        <a href="jadwalDosen.php">Jadwal</a>
-        <a href="kelola.php">Kelola</a>
+        <a href="/CampusFlow/WombatLecturer/dashboardDosen.php" class="active">Beranda</a>
+        <a href="/CampusFlow/WombatLecturer/jadwalDosen.php">Jadwal</a>
+        <a href="/CampusFlow/WombatLecturer/kelola.php">Kelola</a>
     </div>
 
 </div>
 
+<!-- MAIN: konten utama halaman dashboard dosen -->
+
 <div class="main">
+
+    <!-- GREETING: sapaan ke dosen -->
 
     <h1>
         Halo, <?= htmlspecialchars($nama) ?>
@@ -237,39 +258,50 @@ tr:hover{
         Selamat datang di dashboard dosen.
     </p>
 
-    <div class="sem-card">
-        <div class="sem-label"><?= htmlspecialchars(trim($sem['Periode'] ?? 'Ganjil')) ?> <?= $sem['Tahun_Akademik'] ?? '2025' ?>/<?= ($sem['Tahun_Akademik'] ?? 2025) + 1 ?></div>
-        <div class="sem-title">Tahun Akademik <?= $sem['Tahun_Akademik'] ?? '2025' ?>/<?= ($sem['Tahun_Akademik'] ?? 2025) + 1 ?></div>
-    </div>
-   
-    <div class="table-header">
-    <div class="section-title">Seluruh Jadwal Semester Ini</div>
-  </div>
+    <!-- SEMESTER: kartu info semester aktif -->
 
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>Kode</th>
-          <th>Nama Mata Kuliah</th>
-          <th>SKS</th>
-          <th>Jadwal</th>
-          <th>Dosen</th>
-        </tr>
-      </thead>
-      <tbody>
-        <?php foreach ($allCourses as $mk): ?>
-        <tr>
-          <td><?= htmlspecialchars($mk['Id_MK']) ?></td>
-          <td><?= htmlspecialchars($mk['NamaMK']) ?></td>
-          <td><?= $mk['SKS'] ?></td>
-          <td><span class="jadwal-tag"><?= htmlspecialchars($mk['Hari']) ?>, <?= fmtTime($mk['Jam_Mulai']) ?>–<?= fmtTime($mk['Jam_Selesai']) ?></span></td>
-          <td><?= htmlspecialchars($mk['NamaDosen']) ?></td>
-        </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
-  </div>
+    <div class="sem-card">
+        <div class="sem-label">
+            <?= htmlspecialchars(trim($sem['Periode'] ?? 'Ganjil')) ?>
+            <?= $sem['Tahun_Akademik'] ?? '2025' ?>/<?= ($sem['Tahun_Akademik'] ?? 2025) + 1 ?>
+        </div>
+        <div class="sem-title">
+            Tahun Akademik <?= $sem['Tahun_Akademik'] ?? '2025' ?>/<?= ($sem['Tahun_Akademik'] ?? 2025) + 1 ?>
+        </div>
+    </div>
+
+    <!-- TABLE: tabel semua jadwal semester ini -->
+
+    <div class="section-title">Seluruh Jadwal Semester Ini</div>
+
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Kode</th>
+                    <th>Nama Mata Kuliah</th>
+                    <th>SKS</th>
+                    <th>Jadwal</th>
+                    <th>Dosen</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($allCourses as $mk): ?>
+                <tr>
+                    <td><?= htmlspecialchars($mk['Id_MK']) ?></td>
+                    <td><?= htmlspecialchars($mk['NamaMK']) ?></td>
+                    <td><?= $mk['SKS'] ?></td>
+                    <td>
+                        <span class="jadwal-tag">
+                            <?= htmlspecialchars($mk['Hari']) ?>, <?= fmtTime($mk['Jam_Mulai']) ?>–<?= fmtTime($mk['Jam_Selesai']) ?>
+                        </span>
+                    </td>
+                    <td><?= htmlspecialchars($mk['NamaDosen']) ?></td>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
 
 </div>
 

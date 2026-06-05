@@ -53,14 +53,13 @@ $stmt = $conn->prepare("
     WHERE j.Id_Sem = ?
     AND j.NID = ?
     ORDER BY 
-        CASE j.Hari 
-            WHEN 'Senin'  THEN 1
+        CASE j.Hari
+            WHEN 'Senin' THEN 1
             WHEN 'Selasa' THEN 2
-            WHEN 'Rabu'   THEN 3
-            WHEN 'Kamis'  THEN 4
-            WHEN 'Jumat'  THEN 5
-            WHEN 'Sabtu'  THEN 6
-            ELSE 7
+            WHEN 'Rabu' THEN 3
+            WHEN 'Kamis' THEN 4
+            WHEN 'Jumat' THEN 5
+            WHEN 'Sabtu' THEN 6
         END,
         j.Jam_Mulai
 ");
@@ -89,6 +88,7 @@ function fmtTime($t) {
 
 <style>
 
+/* reset semua elemen biar konsisten di semua browser */
 *{
     box-sizing:border-box;
     margin:0;
@@ -96,183 +96,211 @@ function fmtTime($t) {
     font-family:'Calibri',sans-serif;
 }
 
+/* base font size untuk perhitungan rem */
+html{
+    font-size:16px;
+}
+
+/* body: latar abu terang, minimal full layar */
 body{
     background:#f1f5f9;
     min-height:100vh;
 }
 
-/* TOPBAR */
+/* TOPBAR - bar navigasi paling atas */
 
 .topbar{
     background:#fff;
-    border-bottom:1px solid #e2e8f0;
-    height:64px;
+    border-bottom:1px solid #e2e8f0; /* garis pemisah bawah */
+    height:4rem;
     display:flex;
-    align-items:center;
-    justify-content:space-between;
-    padding:0 40px;
+    align-items:center; /* rata tengah vertikal */
+    justify-content:space-between; /* nama kiri, nav kanan */
+    padding:0 2.5rem;
 }
 
+/* nama app di pojok kiri */
 .app-name{
-    font-size:22px;
+    font-size:1.375rem;
     font-weight:800;
     color:#2563eb;
 }
 
+/* container link navigasi */
 .nav{
     display:flex;
-    gap:8px;
+    gap:0.5rem;
 }
 
+/* tiap link navigasi */
 .nav a{
     text-decoration:none;
     color:#475569;
     font-weight:600;
-    padding:10px 18px;
-    border-radius:10px;
-    transition:.2s;
+    padding:0.625rem 1.125rem;
+    border-radius:0.625rem;
+    transition:.2s; /* animasi halus saat hover */
 }
 
+/* hover: background berubah saat mouse lewat */
 .nav a:hover{
     background:#f1f5f9;
 }
 
+/* link halaman yang lagi aktif */
 .nav a.active{
     background:#dbeafe;
     color:#2563eb;
 }
 
-/* MAIN */
+/* MAIN - area konten utama */
 
 .main{
-    max-width:1200px;
-    margin:auto;
-    padding:40px;
+    max-width:68.75rem; /* batas lebar supaya ga melar */
+    margin:auto; /* tengahin horizontal */
+    padding:2rem 2.5rem;
 }
 
+/* teks sapaan "Halo, nama" */
 .greeting{
-    font-size:32px;
+    font-size:1.625rem;
     font-weight:800;
     color:#0f172a;
-    margin-bottom:8px;
+    margin-bottom:0.375rem;
 }
 
+/* subtitle kecil di bawah sapaan */
 .subtitle{
     color:#64748b;
-    margin-bottom:28px;
-    font-size:17px;
+    margin-bottom:1.5rem;
+    font-size:0.9375rem;
 }
 
-/* SEMESTER CARD */
+/* SEMESTER CARD - kartu info semester dengan gradient biru-ungu */
 
 .sem-card{
     background:linear-gradient(135deg,#2563eb,#7c3aed);
     color:#fff;
-    border-radius:18px;
-    padding:30px;
-    margin-bottom:30px;
-    box-shadow:0 10px 25px rgba(37,99,235,.25);
+    border-radius:1rem;
+    padding:1.375rem 1.75rem;
+    margin-bottom:1.5rem;
+    box-shadow:0 0.625rem 1.5rem rgba(37,99,235,.25); /* bayangan biar ngambang */
 }
 
+/* label kecil semester (misal: "Ganjil 2025/2026") */
 .sem-label{
-    font-size:15px;
+    font-size:0.875rem;
     opacity:.9;
-    margin-bottom:8px;
+    margin-bottom:0.25rem;
 }
 
+/* judul besar semester */
 .sem-title{
-    font-size:28px;
+    font-size:1.375rem;
     font-weight:800;
 }
 
-/* STAT CARD */
+/* STAT CARD - kartu statistik (total MK, total SKS) */
 
 .stats{
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-    gap:20px;
-    margin-bottom:30px;
+    grid-template-columns:repeat(auto-fit,minmax(12.5rem,1fr)); /* responsive grid */
+    gap:1rem;
+    margin-bottom:1.5rem;
 }
 
+/* satu kartu stat */
 .stat-card{
     background:#fff;
-    border-radius:14px;
-    padding:24px;
-    box-shadow:0 2px 8px rgba(0,0,0,.06);
+    border-radius:0.75rem;
+    padding:1.25rem;
+    box-shadow:0 0.125rem 0.5rem rgba(0,0,0,.06);
 }
 
+/* judul stat (misal: "Total Mata Kuliah") */
 .stat-title{
     color:#64748b;
-    font-size:15px;
-    margin-bottom:10px;
+    font-size:0.875rem;
+    margin-bottom:0.5rem;
 }
 
+/* angka besar stat */
 .stat-value{
-    font-size:34px;
+    font-size:1.75rem;
     font-weight:800;
     color:#0f172a;
 }
 
-/* TABLE */
+/* TABLE - tabel jadwal mengajar */
 
+/* judul section "Jadwal Mengajar" */
 .section-title{
-    font-size:22px;
+    font-size:1.375rem;
     font-weight:800;
     color:#0f172a;
-    margin-bottom:16px;
+    margin-bottom:1rem;
 }
 
+/* pembungkus tabel: background putih + rounded */
 .table-wrap{
     background:#fff;
-    border-radius:14px;
-    overflow:hidden;
-    box-shadow:0 2px 8px rgba(0,0,0,.06);
+    border-radius:0.875rem;
+    overflow:hidden; /* biar border-radius keliatan */
+    box-shadow:0 0.125rem 0.5rem rgba(0,0,0,.06);
 }
 
+/* tabel full lebar */
 table{
     width:100%;
     border-collapse:collapse;
 }
 
+/* background header tabel */
 thead{
     background:#f8fafc;
 }
 
+/* sel header */
 th{
     text-align:left;
-    padding:16px;
+    padding:1rem;
     color:#475569;
-    font-size:15px;
+    font-size:0.9375rem;
     border-bottom:2px solid #e2e8f0;
 }
 
+/* sel data */
 td{
-    padding:16px;
+    padding:1rem;
     border-bottom:1px solid #f1f5f9;
     color:#334155;
 }
 
+/* baris terakhir ga perlu border bawah */
 tr:last-child td{
     border-bottom:none;
 }
 
+/* efek hover: baris berubah warna saat mouse di atasnya */
 tr:hover td{
     background:#fafbff;
 }
 
+/* badge/tag jadwal (misal: "Senin, 10:00-12:00") */
 .jadwal-tag{
     display:inline-block;
     background:#eff6ff;
     color:#2563eb;
-    padding:5px 10px;
-    border-radius:6px;
-    font-size:14px;
+    padding:0.3125rem 0.625rem;
+    border-radius:0.375rem;
+    font-size:0.875rem;
     font-weight:600;
 }
 
+/* pesan kosong kalau belum ada jadwal */
 .empty{
     text-align:center;
-    padding:40px;
+    padding:2.5rem;
     color:#64748b;
 }
 
@@ -281,7 +309,7 @@ tr:hover td{
 
 <body>
 
-<!-- TOPBAR -->
+<!-- TOPBAR: bar navigasi atas, nama app di kiri, link menu di kanan -->
 
 <div class="topbar">
 
@@ -289,19 +317,20 @@ tr:hover td{
         WombatLecturer
     </div>
 
+    <!-- navigasi: Beranda, Jadwal, Kelola -->
     <nav class="nav">
-        <a href="dashboardDosen.php">Beranda</a>
-        <a href="jadwalDosen.php" class="active">Jadwal</a>
-        <a href="kelola.php">Kelola</a>
+        <a href="/CampusFlow/WombatLecturer/dashboardDosen.php">Beranda</a>
+        <a href="/CampusFlow/WombatLecturer/jadwalDosen.php" class="active">Jadwal</a>
+        <a href="/CampusFlow/WombatLecturer/kelola.php">Kelola</a>
     </nav>
 
 </div>
 
-<!-- MAIN -->
+<!-- MAIN: area konten utama halaman jadwal dosen -->
 
 <div class="main">
 
-    <!-- GREETING -->
+    <!-- GREETING: sapaan ke dosen pake nama depan -->
 
     <div class="greeting">
         Halo, <?= htmlspecialchars(explode(' ', $nama)[0]) ?>
@@ -311,7 +340,7 @@ tr:hover td{
         Berikut jadwal mata kuliah yang Anda ajar semester ini.
     </div>
 
-    <!-- SEMESTER -->
+    <!-- SEMESTER: kartu info semester yang lagi aktif -->
 
     <div class="sem-card">
 

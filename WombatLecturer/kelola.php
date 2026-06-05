@@ -142,128 +142,352 @@ $sksColors = [2=>'#ef4444', 3=>'#f97316', 4=>'#2563eb'];
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Kelola - WombatLecturer</title>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Calibri',Calibri,sans-serif}
-body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
-.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:64px;flex-shrink:0}
-.nav{
-    display:flex;
-    gap:8px;
+
+/* reset semua elemen */
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:'Calibri',Calibri,sans-serif;
 }
 
-.nav a{
-    text-decoration:none;
-    color:#475569;
-    font-weight:600;
-    padding:10px 18px;
-    border-radius:10px;
-    transition:.2s;
-}
-
-.nav a:hover{
+/* body: latar abu, minimal full layar */
+body{
     background:#f1f5f9;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
 }
 
-.nav a.active{
-    background:#dbeafe;
+/* TOPBAR - navigasi atas */
+
+.topbar{
+    background:#fff;
+    border-bottom:1px solid #e2e8f0;
+    padding:0 2.5rem;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    height:4rem;
+    flex-shrink:0;
+}
+
+/* nama app */
+.app-name{
+    font-size:1.25rem;
+    font-weight:800;
     color:#2563eb;
 }
+
+/* container link navigasi */
 .nav-links{
     display:flex;
-    gap:6px
+    gap:0.375rem;
 }
+
+/* tiap link nav */
 .nav-links a{
-    padding:10px 20px;border-radius:8px;font-size:16px;font-weight:600;color:#64748b;text-decoration:none}
-.nav-links a:hover{background:#f1f5f9;color:#0f172a}
-.nav-links a.active{background:#eff6ff;color:#2563eb}
-.app-name{font-size:20px;font-weight:800;color:#2563eb}
-.main{flex:1;display:flex;gap:28px;padding:40px;max-width:1200px;width:100%;margin:0 auto;align-items:flex-start}
-.left-col{flex:1;min-width:0}
-.right-col{width:340px;flex-shrink:0}
-.page-title{font-size:30px;font-weight:800;color:#0f172a;margin-bottom:6px}
-.page-sub{font-size:17px;color:#64748b;margin-bottom:24px}
-.course-card{background:#fff;border-radius:12px;padding:16px 18px;margin-bottom:12px;display:flex;gap:14px;align-items:flex-start;box-shadow:0 1px 4px rgba(0,0,0,.06);cursor:pointer;border:2px solid transparent;transition:border-color .15s}
+    padding:0.625rem 1.25rem;
+    border-radius:0.5rem;
+    font-size:1rem;
+    font-weight:600;
+    color:#64748b;
+    text-decoration:none;
+}
 
-.course-card.hidden{display:none}
+/* hover link */
+.nav-links a:hover{
+    background:#f1f5f9;
+    color:#0f172a;
+}
 
-.course-info{flex:1;min-width:0}
-.course-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
-.course-code{font-size:13px;font-weight:700;color:#64748b}
-.sks-badge{font-size:12px;font-weight:700;color:#fff;padding:3px 10px;border-radius:20px}
-.edit-btn{border:none;border-radius:10px;padding:16px;font-size:15px;font-weight:700;cursor:pointer}
-.edit-btn.disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
-.edit-btn{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
-.course-name{font-size:17px;font-weight:700;color:#0f172a;margin-bottom:7px;line-height:1.3}
-.course-meta{display:flex;gap:16px;font-size:14px;color:#64748b}
-.meta-item{display:flex;align-items:center;gap:5px}
-.meta-icon svg{width:14px;height:14px;stroke:#94a3b8;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+/* link halaman aktif */
+.nav-links a.active{
+    background:#eff6ff;
+    color:#2563eb;
+}
 
-.semester-card{background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);overflow:hidden;top:24px}
-.semesterSaatIni-banner{background:linear-gradient(135deg,#2563eb,#7c3aed);padding:24px;color:#fff}
-.semesterSaatIni-lbl{font-weight:700;font-size:20px;opacity:.85;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px}
-.atur-body{padding:20px}
-.atur-row{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.atur-row span:last-child{font-weight:700;color:#0f172a}
-.tetapkan-btn{width:100%;border:none;border-radius:10px;padding:16px;font-size:17px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px;}
-.tetapkan-btn.disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
-.tetapkan-btn.active{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
-.error-msg{background:#fee2e2;color:#b91c1c;padding:12px 16px;border-radius:8px;font-size:15px;margin-bottom:18px}
+/* MAIN LAYOUT - 2 kolom: kiri (daftar MK), kanan (atur semester + tambah MK) */
 
-.tambah-card{background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);overflow:hidden;top:24px; margin-top:20px}
-.tambah-banner{background:linear-gradient(135deg,#2563eb,#7c3aed);padding:24px;color:#fff}
-.tambah-lbl{font-weight:700;font-size:20px;opacity:.85;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px}
-.tambah-body{padding:20px}
-.tambah-row{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.tambah-row span:last-child{font-weight:700;color:#0f172a}
-.tambah-btn{width:100%;border:none;border-radius:10px;padding:16px;font-size:17px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px;}
-.tambah-btn.disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
-.tambah-btn.active{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+.main{
+    flex:1;
+    display:flex;
+    gap:1.75rem;
+    padding:2.5rem;
+    max-width:75rem;
+    width:100%;
+    margin:0 auto;
+    align-items:flex-start;
+}
 
-.nama-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.nama-group span:last-child{font-weight:700;color:#0f172a}
-.kode-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.kode-group span:last-child{font-weight:700;color:#0f172a}
-.sks-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.sks-group span:last-child{font-weight:700;color:#0f172a}
-.hari-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.hari-group span:last-child{font-weight:700;color:#0f172a}
-.mulai-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.mulai-group span:last-child{font-weight:700;color:#0f172a}
-.ruangan-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.ruangan-group span:last-child{font-weight:700;color:#0f172a}
-.selesai-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.selesai-group span:last-child{font-weight:700;color:#0f172a}
+/* kolom kiri: daftar mata kuliah */
+.left-col{
+    flex:1;
+    min-width:0;
+}
 
-.hari2-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.hari2-group span:last-child{font-weight:700;color:#0f172a}
-.mulai2-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.mulai2-group span:last-child{font-weight:700;color:#0f172a}
-.ruangan2-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.ruangan2-group span:last-child{font-weight:700;color:#0f172a}
-.selesai2-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.selesai2-group span:last-child{font-weight:700;color:#0f172a}
+/* kolom kanan: form atur semester + tambah MK */
+.right-col{
+    width:21.25rem;
+    flex-shrink:0;
+}
 
-.hari3-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.hari3-group span:last-child{font-weight:700;color:#0f172a}
-.mulai3-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.mulai3-group span:last-child{font-weight:700;color:#0f172a}
-.ruangan3-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.ruangan3-group span:last-child{font-weight:700;color:#0f172a}
-.selesai3-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
-.selesai3-group span:last-child{font-weight:700;color:#0f172a}
+/* judul halaman */
+.page-title{
+    font-size:1.875rem;
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:1.5rem;
+}
+
+/* COURSE CARDS - kartu tiap mata kuliah */
+
+.course-card{
+    background:#fff;
+    border-radius:0.75rem;
+    padding:1rem 1.125rem;
+    margin-bottom:0.75rem;
+    display:flex;
+    gap:0.875rem;
+    align-items:flex-start;
+    box-shadow:0 0.0625rem 0.25rem rgba(0,0,0,.06);
+    border:2px solid transparent;
+}
+
+.course-card.hidden{
+    display:none;
+}
+
+.course-info{
+    flex:1;
+    min-width:0;
+}
+
+/* baris atas kartu: kode + badge SKS + tombol edit */
+.course-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:0.3125rem;
+}
+
+/* kode mata kuliah */
+.course-code{
+    font-size:0.8125rem;
+    font-weight:700;
+    color:#64748b;
+}
+
+/* badge SKS berwarna */
+.sks-badge{
+    font-size:0.75rem;
+    font-weight:700;
+    color:#fff;
+    padding:0.1875rem 0.625rem;
+    border-radius:1.25rem;
+}
+
+/* nama mata kuliah */
+.course-name{
+    font-size:1.0625rem;
+    font-weight:700;
+    color:#0f172a;
+    margin-bottom:0.4375rem;
+    line-height:1.3;
+}
+
+/* baris meta: info dosen dan jadwal */
+.course-meta{
+    display:flex;
+    gap:1rem;
+    font-size:0.875rem;
+    color:#64748b;
+}
+
+.meta-item{
+    display:flex;
+    align-items:center;
+    gap:0.3125rem;
+}
+
+.meta-icon svg{
+    width:0.875rem;
+    height:0.875rem;
+    stroke:#94a3b8;
+    fill:none;
+    stroke-width:2;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+/* tombol edit MK */
+.edit-btn{
+    border:none;
+    border-radius:0.625rem;
+    padding:0.625rem 1rem;
+    font-size:0.875rem;
+    font-weight:700;
+    cursor:pointer;
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+    color:#fff;
+    box-shadow:0 0.25rem 0.875rem rgba(37,99,235,.3);
+    text-decoration:none;
+}
+
+/* tombol disabled buat MK yang bukan milik dosen ini */
+.edit-btn.disabled{
+    background:#e2e8f0;
+    color:#94a3b8;
+    cursor:not-allowed;
+    box-shadow:none;
+}
+
+/* SEMESTER CARD - kartu atur semester di kanan */
+
+.semester-card{
+    background:#fff;
+    border-radius:0.75rem;
+    box-shadow:0 0.0625rem 0.375rem rgba(0,0,0,.08);
+    overflow:hidden;
+}
+
+/* banner gradient: info semester sekarang */
+.semesterSaatIni-banner{
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+    padding:1.5rem;
+    color:#fff;
+}
+
+.semesterSaatIni-lbl{
+    font-weight:700;
+    font-size:1.25rem;
+    opacity:.85;
+    margin-bottom:0.375rem;
+}
+
+/* body form atur semester */
+.atur-body{
+    padding:1.25rem;
+}
+
+.atur-row{
+    display:flex;
+    justify-content:space-between;
+    font-size:1rem;
+    color:#475569;
+    margin-bottom:0.875rem;
+}
+
+/* tombol "Tetapkan" semester */
+.tetapkan-btn{
+    width:100%;
+    border:none;
+    border-radius:0.625rem;
+    padding:1rem;
+    font-size:1.0625rem;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:1.25rem;
+}
+
+.tetapkan-btn.active{
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+    color:#fff;
+    box-shadow:0 0.25rem 0.875rem rgba(37,99,235,.3);
+}
+
+/* TAMBAH MK CARD - kartu form tambah mata kuliah baru */
+
+.tambah-card{
+    background:#fff;
+    border-radius:0.75rem;
+    box-shadow:0 0.0625rem 0.375rem rgba(0,0,0,.08);
+    overflow:hidden;
+    margin-top:1.25rem;
+}
+
+/* banner "Tambah Mata Kuliah" */
+.tambah-banner{
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+    padding:1.5rem;
+    color:#fff;
+}
+
+.tambah-lbl{
+    font-weight:700;
+    font-size:1.25rem;
+    opacity:.85;
+}
+
+/* body form tambah MK */
+.tambah-body{
+    padding:1.25rem;
+}
+
+.tambah-row{
+    font-size:1rem;
+    color:#475569;
+    margin-bottom:0.875rem;
+}
+
+/* tombol "Tambah Mata Kuliah" */
+.tambah-btn{
+    width:100%;
+    border:none;
+    border-radius:0.625rem;
+    padding:1rem;
+    font-size:1.0625rem;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:1.25rem;
+}
+
+.tambah-btn.active{
+    background:linear-gradient(135deg,#2563eb,#7c3aed);
+    color:#fff;
+    box-shadow:0 0.25rem 0.875rem rgba(37,99,235,.3);
+}
+
+/* form-group: layout label + input sejajar */
+.kode-group, .nama-group, .sks-group,
+.hari-group, .mulai-group, .selesai-group, .ruangan-group,
+.hari2-group, .mulai2-group, .selesai2-group, .ruangan2-group,
+.hari3-group, .mulai3-group, .selesai3-group, .ruangan3-group{
+    display:flex;
+    justify-content:space-between;
+    font-size:1rem;
+    color:#475569;
+    margin-bottom:0.875rem;
+}
 
 </style>
 </head>
 <body>
+
+<!-- TOPBAR: navigasi atas -->
+
 <div class="topbar">
-  <div class="app-name">WombatLecturer</div>
-  <nav class="nav-links">
-    <a href="dashboardDosen.php">Beranda</a>
-    <a href="jadwalDosen.php">Jadwal</a>
-    <a href="kelola.php" class = "active">Kelola</a>
-  </nav>
+    <div class="app-name">WombatLecturer</div>
+    <!-- menu navigasi -->
+    <nav class="nav-links">
+        <a href="/CampusFlow/WombatLecturer/dashboardDosen.php">Beranda</a>
+        <a href="/CampusFlow/WombatLecturer/jadwalDosen.php">Jadwal</a>
+        <a href="/CampusFlow/WombatLecturer/kelola.php" class="active">Kelola</a>
+    </nav>
 </div>
 
+<!-- MAIN: layout 2 kolom (daftar MK kiri, form atur kanan) -->
+
 <div class="main">
+
+    <!-- LEFT COLUMN: daftar mata kuliah semester ini -->
+
     <div class="left-col">
         <div class="page-title">Mata Kuliah Semester ini</div>
 
