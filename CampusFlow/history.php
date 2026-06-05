@@ -54,115 +54,433 @@ function fmtTime($t){ return substr($t,0,5); }
 <!DOCTYPE html>
 <html lang="id">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Riwayat FRS – CampusFlow</title>
+
 <style>
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Calibri',Calibri,sans-serif}
-body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
-.topbar{background:#fff;border-bottom:1px solid #e2e8f0;padding:0 40px;display:flex;align-items:center;justify-content:space-between;height:64px}
-.app-name{font-size:20px;font-weight:800;color:#2563eb}
-.nav-links{display:flex;gap:6px}
-.nav-links a{padding:10px 20px;border-radius:8px;font-size:16px;font-weight:600;color:#64748b;text-decoration:none;transition:background .15s}
-.nav-links a:hover{background:#f1f5f9;color:#0f172a}
-.nav-links a.active{background:#eff6ff;color:#2563eb}
-.main{flex:1;padding:40px;max-width:900px;width:100%;margin:0 auto}
-.page-title{font-size:30px;font-weight:800;color:#0f172a;margin-bottom:6px}
-.page-sub{font-size:17px;color:#64748b;margin-bottom:36px}
-/* timeline */
-.timeline{position:relative;padding-left:32px}
-.timeline::before{content:'';position:absolute;left:8px;top:8px;bottom:8px;width:2px;background:#e2e8f0}
-.sem-block{position:relative;margin-bottom:32px}
-.sem-dot{position:absolute;left:-28px;top:16px;width:14px;height:14px;border-radius:50%;background:#cbd5e1;border:2px solid #fff;box-shadow:0 0 0 2px #cbd5e1}
-.sem-dot.active{background:#2563eb;box-shadow:0 0 0 3px #bfdbfe}
-.sem-dot.bentrok{background:#dc2626;box-shadow:0 0 0 3px #fecaca}
-.sem-card{background:#fff;border-radius:14px;box-shadow:0 1px 6px rgba(0,0,0,.08);overflow:hidden}
-.sem-header{padding:18px 22px;border-bottom:1px solid #f1f5f9;display:flex;align-items:center;justify-content:space-between}
-.sem-title{font-size:20px;font-weight:800;color:#0f172a}
-.sem-meta{font-size:15px;color:#64748b;margin-top:3px}
-.sem-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:13px;font-weight:700}
-.badge-ok{background:#dcfce7;color:#16a34a}
-.badge-bentrok{background:#fee2e2;color:#dc2626}
-.course-list{padding:8px 0}
-.course-row{display:flex;align-items:center;padding:12px 22px;border-bottom:1px solid #f8fafc;gap:14px}
-.course-row:last-child{border-bottom:none}
-.conflict-bar{width:4px;height:40px;border-radius:2px;flex-shrink:0}
-.bar-ok{background:#e2e8f0}
-.bar-bentrok{background:#dc2626}
-.course-name{font-size:16px;font-weight:700;color:#0f172a;flex:1}
-.course-detail{font-size:14px;color:#64748b;margin-top:2px}
-.sks-num{font-size:14px;font-weight:700;color:#475569;white-space:nowrap}
-.bentrok-tag{display:inline-block;background:#fee2e2;color:#dc2626;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:700;margin-left:8px}
-.empty{text-align:center;padding:48px;color:#94a3b8;font-size:17px}
-.edit-link{display:inline-flex;align-items:center;gap:6px;color:#2563eb;font-size:14px;font-weight:600;text-decoration:none}
-.edit-link svg{width:14px;height:14px;stroke:#2563eb;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
-.edit-btn.disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
+
+/* reset semua elemen biar konsisten di semua browser */
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:'Calibri',Calibri,sans-serif;
+}
+
+/* body: latar abu terang, minimal setinggi layar */
+body{
+    background:#f1f5f9;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+
+/* TOPBAR - bar navigasi paling atas */
+
+.topbar{
+    background:#fff;
+    border-bottom:1px solid #e2e8f0;
+    padding:0 2.5rem;
+    display:flex;
+    align-items:center; /* rata tengah vertikal */
+    justify-content:space-between; /* nama kiri, nav kanan */
+    height:4rem;
+}
+
+/* nama app di pojok kiri */
+.app-name{
+    font-size:1.25rem;
+    font-weight:800;
+    color:#2563eb;
+}
+
+/* container link-link navigasi */
+.nav-links{
+    display:flex;
+    gap:0.375rem;
+}
+
+/* tiap link navigasi */
+.nav-links a{
+    padding:0.625rem 1.25rem;
+    border-radius:0.5rem;
+    font-size:1rem;
+    font-weight:600;
+    color:#64748b;
+    text-decoration:none;
+    transition:background .15s;
+}
+
+/* hover: background berubah saat mouse lewat */
+.nav-links a:hover{
+    background:#f1f5f9;
+    color:#0f172a;
+}
+
+/* link yang lagi aktif (halaman ini) */
+.nav-links a.active{
+    background:#eff6ff;
+    color:#2563eb;
+}
+
+/* MAIN - area konten utama, lebih sempit karena ini halaman riwayat */
+
+.main{
+    flex:1;
+    padding:2.5rem;
+    max-width:56.25rem; /* lebih kecil dari dashboard, cocok buat timeline */
+    width:100%;
+    margin:0 auto;
+}
+
+/* judul halaman */
+.page-title{
+    font-size:1.875rem;
+    font-weight:800;
+    color:#0f172a;
+    margin-bottom:0.375rem;
+}
+
+/* subtitle di bawah judul */
+.page-sub{
+    font-size:1.0625rem;
+    color:#64748b;
+    margin-bottom:2.25rem;
+}
+
+/* TIMELINE - garis vertikal di kiri yang menghubungkan tiap semester */
+
+.timeline{
+    position:relative;
+    padding-left:2rem; /* kasih ruang buat dot di kiri */
+}
+
+/* garis vertikal timeline (pseudo-element) */
+.timeline::before{
+    content:'';
+    position:absolute;
+    left:0.5rem;
+    top:0.5rem;
+    bottom:0.5rem;
+    width:2px;
+    background:#e2e8f0;
+}
+
+/* satu blok semester dalam timeline */
+.sem-block{
+    position:relative;
+    margin-bottom:2rem;
+}
+
+/* bulatan kecil di kiri timeline (penanda tiap semester) */
+.sem-dot{
+    position:absolute;
+    left:-1.75rem;
+    top:1rem;
+    width:0.875rem;
+    height:0.875rem;
+    border-radius:50%;
+    background:#cbd5e1;
+    border:2px solid #fff;
+    box-shadow:0 0 0 2px #cbd5e1;
+}
+
+/* dot semester aktif: warna biru */
+.sem-dot.active{
+    background:#2563eb;
+    box-shadow:0 0 0 3px #bfdbfe;
+}
+
+/* dot semester bentrok: warna merah */
+.sem-dot.bentrok{
+    background:#dc2626;
+    box-shadow:0 0 0 3px #fecaca;
+}
+
+/* SEMESTER CARD - kartu putih tiap semester berisi daftar matkul */
+
+.sem-card{
+    background:#fff;
+    border-radius:0.875rem;
+    box-shadow:0 0.0625rem 0.375rem rgba(0,0,0,.08);
+    overflow:hidden;
+}
+
+/* header kartu semester: judul semester + meta info */
+.sem-header{
+    padding:1.125rem 1.375rem;
+    border-bottom:1px solid #f1f5f9;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+/* judul semester (misal: "Ganjil 2025/2026") */
+.sem-title{
+    font-size:1.25rem;
+    font-weight:800;
+    color:#0f172a;
+}
+
+/* info tambahan: total SKS, jumlah MK */
+.sem-meta{
+    font-size:0.9375rem;
+    color:#64748b;
+    margin-top:0.1875rem;
+}
+
+/* badge status semester */
+.sem-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:0.375rem;
+    padding:0.3125rem 0.75rem;
+    border-radius:1.25rem;
+    font-size:0.8125rem;
+    font-weight:700;
+}
+
+/* badge hijau: semester OK */
+.badge-ok{
+    background:#dcfce7;
+    color:#16a34a;
+}
+
+/* badge merah: ada bentrok */
+.badge-bentrok{
+    background:#fee2e2;
+    color:#dc2626;
+}
+
+/* COURSE LIST - daftar mata kuliah di dalam kartu semester */
+
+.course-list{
+    padding:0.5rem 0;
+}
+
+/* satu baris mata kuliah */
+.course-row{
+    display:flex;
+    align-items:center;
+    padding:0.75rem 1.375rem;
+    border-bottom:1px solid #f8fafc;
+    gap:0.875rem;
+}
+
+/* baris terakhir ga perlu garis bawah */
+.course-row:last-child{
+    border-bottom:none;
+}
+
+/* bar kecil di kiri tiap matkul (indikator status) */
+.conflict-bar{
+    width:0.25rem;
+    height:2.5rem;
+    border-radius:0.125rem;
+    flex-shrink:0;
+}
+
+/* bar abu: ga ada masalah */
+.bar-ok{
+    background:#e2e8f0;
+}
+
+/* bar merah: ada bentrok */
+.bar-bentrok{
+    background:#dc2626;
+}
+
+/* nama mata kuliah */
+.course-name{
+    font-size:1rem;
+    font-weight:700;
+    color:#0f172a;
+    flex:1;
+}
+
+/* detail jadwal (hari, jam) */
+.course-detail{
+    font-size:0.875rem;
+    color:#64748b;
+    margin-top:0.125rem;
+}
+
+/* angka SKS di kanan */
+.sks-num{
+    font-size:0.875rem;
+    font-weight:700;
+    color:#475569;
+    white-space:nowrap;
+}
+
+/* tag bentrok kecil merah */
+.bentrok-tag{
+    display:inline-block;
+    background:#fee2e2;
+    color:#dc2626;
+    border-radius:0.25rem;
+    padding:0.125rem 0.5rem;
+    font-size:0.75rem;
+    font-weight:700;
+    margin-left:0.5rem;
+}
+
+/* tampilan kosong kalau belum ada riwayat */
+.empty{
+    text-align:center;
+    padding:3rem;
+    color:#94a3b8;
+    font-size:1.0625rem;
+}
+
+/* EDIT LINK - link "Edit FRS" di header semester aktif */
+
+.edit-link{
+    display:inline-flex;
+    align-items:center;
+    gap:0.375rem;
+    color:#2563eb;
+    font-size:0.875rem;
+    font-weight:600;
+    text-decoration:none;
+}
+
+/* ikon pensil di link edit */
+.edit-link svg{
+    width:0.875rem;
+    height:0.875rem;
+    stroke:#2563eb;
+    fill:none;
+    stroke-width:2.5;
+    stroke-linecap:round;
+    stroke-linejoin:round;
+}
+
+/* tombol disabled buat semester yang udah lewat (ga bisa di-edit) */
+.edit-btn.disabled{
+    background:#e2e8f0;
+    color:#94a3b8;
+    cursor:not-allowed;
+}
+
 </style>
+
 </head>
+
 <body>
+
+<!-- TOPBAR: navigasi atas -->
+
 <div class="topbar">
-  <div class="app-name">WombatStudent</div>
-  <nav class="nav-links">
-    <a href="dashboard.php">Beranda</a>
-    <a href="jadwal.php">Jadwal</a>
-    <a href="history.php" class="active">Riwayat</a>
-  </nav>
+
+    <div class="app-name">WombatStudent</div>
+
+    <!-- menu navigasi -->
+    <nav class="nav-links">
+        <a href="dashboard.php">Beranda</a>
+        <a href="jadwal.php">Jadwal</a>
+        <a href="history.php" class="active">Riwayat</a>
+    </nav>
+
 </div>
+
+<!-- MAIN: konten utama halaman riwayat -->
 
 <div class="main">
-  <div class="page-title">Histori Akademik</div>
-  <div class="page-sub">Riwayat FRS per semester</div>
 
-  <?php if (empty($history)): ?>
-  <div class="empty">Belum ada riwayat FRS. Isi FRS terlebih dahulu.</div>
-  <?php else: ?>
-  <div class="timeline">
-    <?php foreach ($history as $i => $h):
-      $s = $h['sem'];
-      $label = trim($s['Periode']).' '.$s['Tahun_Akademik'].'/'.($s['Tahun_Akademik']+1);
-      $dotClass = $i === 0 ? 'active' : '';
-    ?>
-    <div class="sem-block">
-      <div class="sem-dot <?= $dotClass ?>"></div>
-      <div class="sem-card">
-        <div class="sem-header">
-          <div>
-            <div class="sem-title"><?= htmlspecialchars($label) ?></div>
-            <div class="sem-meta"><?= $h['totalSKS'] ?> SKS &bull; <?= count($h['courses']) ?> mata kuliah &bull; Disimpan</div>
-          </div>
-          <div style="display:flex;align-items:center;gap:14px">
-            <?php if (trim($h['sem']['Id_Sem']) === trim($id_sem)): ?>
-                <a href="frs.php" class="edit-link">
-                  <svg viewBox="0 0 24 24">
-                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                  </svg>
-                  Edit FRS
-                </a>
-            <?php else: ?>
-                <button class="edit-btn disabled" disabled>
-                    Tidak Bisa Edit
-                </button>
-            <?php endif; ?>
-          </div>
-        </div>
-        <div class="course-list">
-          <?php foreach ($h['courses'] as $c): ?>
-          <div class="course-row">
-            <div class="conflict-bar bar-ok"></div>
-            <div style="flex:1">
-              <div class="course-name"><?= htmlspecialchars($c['Id_MK']) ?> : <?= htmlspecialchars($c['NamaMK']) ?></div>
-              <div class="course-detail"><?= htmlspecialchars($c['Hari']) ?>, <?= fmtTime($c['Jam_Mulai']) ?>–<?= fmtTime($c['Jam_Selesai']) ?></div>
+    <!-- HEADER: judul + deskripsi halaman -->
+
+    <div class="page-title">Histori Akademik</div>
+    <div class="page-sub">Riwayat FRS per semester</div>
+
+    <?php if (empty($history)): ?>
+
+        <!-- pesan kalau belum ada riwayat sama sekali -->
+        <div class="empty">Belum ada riwayat FRS. Isi FRS terlebih dahulu.</div>
+
+    <?php else: ?>
+
+    <!-- TIMELINE: daftar semester dari yang terbaru -->
+
+    <div class="timeline">
+
+        <?php foreach ($history as $i => $h):
+            $s = $h['sem'];
+            $label = trim($s['Periode']).' '.$s['Tahun_Akademik'].'/'.($s['Tahun_Akademik']+1);
+            $dotClass = $i === 0 ? 'active' : '';
+        ?>
+
+        <!-- satu blok semester -->
+        <div class="sem-block">
+
+            <!-- dot penanda di timeline -->
+            <div class="sem-dot <?= $dotClass ?>"></div>
+
+            <div class="sem-card">
+
+                <!-- SEMESTER HEADER: info semester + tombol edit -->
+
+                <div class="sem-header">
+
+                    <div>
+                        <div class="sem-title"><?= htmlspecialchars($label) ?></div>
+                        <div class="sem-meta">
+                            <?= $h['totalSKS'] ?> SKS &bull; <?= count($h['courses']) ?> mata kuliah &bull; Disimpan
+                        </div>
+                    </div>
+
+                    <div style="display:flex;align-items:center;gap:0.875rem">
+                        <?php if (trim($h['sem']['Id_Sem']) === trim($id_sem)): ?>
+                            <!-- semester aktif bisa di-edit -->
+                            <a href="frs.php" class="edit-link">
+                                <svg viewBox="0 0 24 24">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                </svg>
+                                Edit FRS
+                            </a>
+                        <?php else: ?>
+                            <!-- semester lama ga bisa di-edit -->
+                            <button class="edit-btn disabled" disabled>
+                                Tidak Bisa Edit
+                            </button>
+                        <?php endif; ?>
+                    </div>
+
+                </div>
+
+                <!-- COURSE LIST: daftar matkul yang diambil semester itu -->
+
+                <div class="course-list">
+                    <?php foreach ($h['courses'] as $c): ?>
+                    <div class="course-row">
+                        <div class="conflict-bar bar-ok"></div>
+                        <div style="flex:1">
+                            <div class="course-name">
+                                <?= htmlspecialchars($c['Id_MK']) ?> : <?= htmlspecialchars($c['NamaMK']) ?>
+                            </div>
+                            <div class="course-detail">
+                                <?= htmlspecialchars($c['Hari']) ?>, <?= fmtTime($c['Jam_Mulai']) ?>–<?= fmtTime($c['Jam_Selesai']) ?>
+                            </div>
+                        </div>
+                        <div class="sks-num"><?= $c['SKS'] ?> SKS</div>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+
             </div>
-            <div class="sks-num"><?= $c['SKS'] ?> SKS</div>
-          </div>
-          <?php endforeach; ?>
+
         </div>
-      </div>
+
+        <?php endforeach; ?>
+
     </div>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
+
+    <?php endif; ?>
+
 </div>
+
 </body>
 </html>
