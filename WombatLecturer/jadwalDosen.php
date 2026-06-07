@@ -319,9 +319,9 @@ tr:hover td{
 
     <!-- navigasi: Beranda, Jadwal, Kelola -->
     <nav class="nav">
-        <a href="/CampusFlow/WombatLecturer/dashboardDosen.php">Beranda</a>
-        <a href="/CampusFlow/WombatLecturer/jadwalDosen.php" class="active">Jadwal</a>
-        <a href="/CampusFlow/WombatLecturer/kelola.php">Kelola</a>
+        <a href="dashboardDosen.php">Beranda</a>
+        <a href="jadwalDosen.php" class="active">Jadwal</a>
+        <a href="kelola.php">Kelola</a>
     </nav>
 
 </div>

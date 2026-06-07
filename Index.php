@@ -93,7 +93,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         <div class="form-group">
             <label>Email</label>
-            <input type="email" name="email" placeholder="email@kampus.ac.id" required>
+            <input type="email" name="email" id="emailInput" placeholder="contoh@student.unpar.ac.id" required>
         </div>
         <div class="form-group">
             <label>Password</label>
@@ -104,8 +104,18 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     </form>
 
     <div class="hint">
-        Contoh mahasiswa: bt@student.unpar.ac.id / 123456<br>
+        Mahasiswa: bt@student.unpar.ac.id<br>
+        Dosen: xx@lecture.unpar.ac.id
     </div>
+
+    <script>
+    document.querySelectorAll('input[name="role"]').forEach(r => {
+        r.addEventListener('change', function() {
+            document.getElementById('emailInput').placeholder = 
+                this.value === 'dosen' ? 'contoh@lecture.unpar.ac.id' : 'contoh@student.unpar.ac.id';
+        });
+    });
+    </script>
     <div style="text-align:center;margin-top:20px;font-size:15px;color:#64748b">
         Belum punya akun? <a href="register.php" style="color:#2563eb;font-weight:600;text-decoration:none">Daftar Sekarang</a>
     </div>

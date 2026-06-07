@@ -6,7 +6,7 @@ if (!isset($_SESSION["id_user"])) {
 }
 require_once "../Koneksi.php";
 
-$npm    = $_SESSION["id_user"];
+$npm    = trim($_SESSION["id_user"]);
 
 $periode = $_GET["periode"] ?? ($_SESSION["periode"] ?? "1");
 $semester = $_GET["semester"] ?? ($_SESSION["semester"] ?? "25");
@@ -46,12 +46,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_mk'])) {
             }
 
             //hapus enroll lama apabila terjaid perubahan frs
-            $conn->prepare("DELETE FROM Enroll WHERE NPM = ? AND Id_Sem = ?")->execute([$npm, $id_sem]);
+            $conn->prepare("DELETE FROM Enroll WHERE Id_FRS = (SELECT Id_FRS FROM FRS WHERE NPM = ? AND Id_FRS = ?) AND Id_Sem = ?")->execute([$npm, $id_frs, $id_sem]);
             //inseert enroll baru
-            $ins = $conn->prepare("INSERT INTO Enroll (NPM, Id_MK, Id_Sem, Id_FRS, Dibuat_pada) VALUES (?, ?, ?, ?, GETDATE())");
+            $ins = $conn->prepare("INSERT INTO Enroll (NPM, Id_MK, Id_Sem, Id_FRS) VALUES (?, ?, ?, (SELECT Id_FRS FROM FRS WHERE NPM = ? AND Id_FRS = ?))");
             //loop untuk semua matkul yang dipilih, masukan ke tabel enroll
             foreach ($selected as $id_mk) {
-                $ins->execute([$npm, $id_mk, $id_sem, $id_frs]);
+                $ins->execute([$npm, $id_mk, $id_sem, $npm, $id_frs]);
             }
             $conn->commit();//simpan semua perubahan permanen
             $_SESSION['frs_result'] = ['semester' => $semLabel, 'courses' => $jadwalSelected];//simpan hasil ke session
@@ -59,7 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_mk'])) {
             exit;
         } catch (Exception $e) {
             $conn->rollBack();
-            $msg = 'error';
+            $msg = 'error: ' . $e->getMessage();
         }
     }
 }
@@ -74,7 +74,19 @@ $stmt = $conn->prepare("
     ORDER BY mk.Nama
 ");
 $stmt->execute([$id_sem]);
-$courses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$rawCourses = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Group by Id_MK supaya 1 matkul = 1 card meskipun punya banyak jadwal
+$courses = [];
+foreach ($rawCourses as $row) {
+    $id = $row['Id_MK'];
+    if (!isset($courses[$id])) {
+        $courses[$id] = $row;
+        $courses[$id]['jadwal'] = [];
+    }
+    $courses[$id]['jadwal'][] = $row['Hari'] . ', ' . fmtTime($row['Jam_Mulai']);
+}
+$courses = array_values($courses);
 
 //ambil mata kuliah yang sudah diambil di enroll
 $stmt = $conn->prepare("SELECT Id_MK FROM Enroll WHERE NPM = ? AND Id_Sem = ?");
@@ -432,8 +444,8 @@ body{
         <div class="page-sub">Semester <?= htmlspecialchars($semLabel) ?></div>
 
         <!-- error message kalau gagal simpan -->
-        <?php if ($msg === 'error'): ?>
-            <div class="error-msg">Gagal menyimpan FRS, coba lagi.</div>
+        <?php if (str_starts_with($msg, 'error')): ?>
+            <div class="error-msg"><?= htmlspecialchars($msg) ?></div>
         <?php endif; ?>
 
         <!-- form FRS: semua checkbox matkul ada di sini -->
@@ -487,7 +499,7 @@ body{
                                         <polyline points="12 6 12 12 16 14"/>
                                     </svg>
                                 </span>
-                                <?= htmlspecialchars($c['Hari']) ?>, <?= fmtTime($c['Jam_Mulai']) ?>
+                                <?= htmlspecialchars(implode(' | ', $c['jadwal'])) ?>
                             </span>
                         </div>
 
