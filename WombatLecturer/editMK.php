@@ -13,6 +13,7 @@ $id_sem = $_GET['Id_Sem'] ?? '';
 $semester = explode('-', $id_sem)[0];
 $periode = explode('-', $id_sem)[1];
 
+$conn -> beginTransaction();
 $currentMK = $conn->prepare("
     SELECT Nama, Id_MK, SKS
     FROM MataKuliah
@@ -25,10 +26,10 @@ $jadwal = $conn->prepare("
     SELECT Hari, Jam_Mulai, Jam_Selesai, Ruangan
     FROM Jadwal 
     WHERE Id_MK = ? AND Id_Sem = ?
-    ORDER BY Jadwal_Ke
 ");
 $jadwal->execute([$id_mk, $id_sem]);
 $dataJadwal = $jadwal->fetchAll(PDO::FETCH_ASSOC);
+$conn->commit();
 
 //untuk menambah mata kuliah ke data base
 if(isset($_POST["edit_mk"])) {
@@ -49,13 +50,12 @@ if(isset($_POST["edit_mk"])) {
 
     //UNTUK MENANGANI KALAU MATA KULIAH BELOM ADA
     //kode gabisa diganti supaya bisa update
-    //ga ada fitur bisa liat jadwal yang sebelumnya ada dan jadwal ga FK kemana mana jadi bisa update dan delete
     try {
         $conn->beginTransaction();
         $editMK = $conn->prepare("
             UPDATE MataKuliah 
             SET Nama = ?, SKS = ?
-            WHERE Id_MK = ?  
+            WHERE Id_MK = ? 
         ");
 
         $editMK->execute([$nama, $sks, $id_mk]);
@@ -64,89 +64,46 @@ if(isset($_POST["edit_mk"])) {
         $editJadwal1 = $conn->prepare("
             UPDATE Jadwal
             SET Hari = ?, Jam_Mulai = ?, Jam_Selesai = ?, Ruangan = ?
-            WHERE Jadwal_Ke = 1 AND Id_MK = ? AND Id_Sem = ?
+            WHERE Jadwal_Ke = 1 AND Id_MK = (SELECT Id_MK FROM MataKuliah WHERE Nama = ?) AND Id_Sem = ?
         ");
             //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
-            $editJadwal1->execute([$hari, $mulai, $selesai, $ruangan, $id_mk, $id_sem]);
+            $editJadwal1->execute([$hari, $mulai, $selesai, $ruangan, $nama, $id_sem]);
 
         //edit jadwal kedua
         //kalau jadwal kedua diisi, masukkan ke database
         if(!empty($hari2)) {
-            //cek apakah ada jadwal kedua untuk matkul ini di sem ini
-            $cekJadwal2 = $conn -> prepare("
-                SELECT COUNT(Id_MK)
-                FROM Jadwal
+            $editJadwal2 = $conn->prepare("
+                UPDATE Jadwal
+                SET Hari = ?, Jam_Mulai = ?, Jam_Selesai = ?, Ruangan = ?
                 WHERE Jadwal_Ke = 2 AND Id_MK = ? AND Id_Sem = ?
             ");
-            $cekJadwal2->execute([$id_mk, $id_sem]);
 
-            //kalau ada jadwal sebelumnya, lakukan update
-            if ($cekJadwal2->fetchColumn() > 0) {
-                $editJadwal2 = $conn->prepare("
-                    UPDATE Jadwal
-                    SET Hari = ?, Jam_Mulai = ?, Jam_Selesai = ?, Ruangan = ?
-                    WHERE Jadwal_Ke = 2 AND Id_MK = ? AND Id_Sem = ?
-                ");
-
-                //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
-                $editJadwal2->execute([$hari2, $mulai2, $selesai2, $ruangan2, $id_mk, $id_sem]);
-            }
-            //kalau sebelumnya belum ada jadwal (insert baru) 
-            else {
-                $tambahJadwal2 = $conn->prepare("
-                    INSERT INTO Jadwal
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ");
-                $id_jadwal2 = substr($id_mk,-3).$semester.$periode.'2';
-                $tambahJadwal2->execute([$id_jadwal2, 2, $id_mk, $id_sem, $nid, $hari2, $mulai2, $selesai2, $ruangan2]); 
-            }           
+            //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
+            $editJadwal2->execute([$hari2, $mulai2, $selesai2, $ruangan2, $id_mk, $id_sem]);
         } else {
             //kalau ga diisi lagi, hapus dari database
             $delJadwal2 = $conn->prepare("
                 DELETE FROM Jadwal
-                WHERE Id_MK = ? AND Id_Sem = ? AND Jadwal_Ke = 2
+                WHERE Id_MK = (SELECT Id_MK FROM MataKuliah WHERE Nama = ?) AND Id_Sem = ? AND Jadwal_Ke = 2
             ");
-            $delJadwal2->execute([$id_mk, $id_sem]);
+            $delJadwal2->execute([$nama, $id_sem]);
         }
         
         //edit jadwal ketiga
         //kalau jadwal ketiga diisi, masukkan ke database
         if(!empty($hari3)) {
-            //cek apakah ada jadwal kedua untuk matkul ini di sem ini
-            $cekJadwal3 = $conn -> prepare("
-                SELECT COUNT(Id_MK)
-                FROM Jadwal
+            $editJadwal3 = $conn->prepare("
+                UPDATE Jadwal
+                SET Hari = ?, Jam_Mulai = ?, Jam_Selesai = ?, Ruangan = ?
                 WHERE Jadwal_Ke = 3 AND Id_MK = ? AND Id_Sem = ?
             ");
-            $cekJadwal3->execute([$id_mk, $id_sem]);
-
-            //kalau ada jadwal sebelumnya, lakukan update
-            if ($cekJadwal3->fetchColumn() > 0) {
-                $editJadwal3 = $conn->prepare("
-                    UPDATE Jadwal
-                    SET Hari = ?, Jam_Mulai = ?, Jam_Selesai = ?, Ruangan = ?
-                    WHERE Jadwal_Ke = 3 AND Id_MK = ? AND Id_Sem = ?
-                ");
-
-                //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
-                $editJadwal3->execute([$hari3, $mulai3, $selesai3, $ruangan3, $id_mk, $id_sem]);
-            }
-            //kalau sebelumnya belum ada jadwal (insert baru) 
-            else {
-                $tambahJadwal3 = $conn->prepare("
-                    INSERT INTO Jadwal
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                ");
-                $id_jadwal3 = substr($id_mk,-3).$semester.$periode.'3';
-                $tambahJadwal3->execute([$id_jadwal3, 3, $id_mk, $id_sem, $nid, $hari3, $mulai3, $selesai3, $ruangan3]); 
-            }           
+            $editJadwal3->execute([$hari3, $mulai3, $selesai3, $ruangan3, $id_mk, $id_sem]);
         } else {
-            //kalau ga diisi lagi, hapus dari database
             $delJadwal3 = $conn->prepare("
                 DELETE FROM Jadwal
-                WHERE Id_MK = ? AND Id_Sem = ? AND Jadwal_Ke = 3
+                WHERE Jadwal_Ke = 3 AND Id_MK = (SELECT Id_MK FROM MataKuliah WHERE Nama = ?) AND Id_Sem = ?
             ");
-            $delJadwal3->execute([$id_mk, $id_sem]);
+            $delJadwal3->execute([$nama, $id_sem]);
         }
 
         $conn->commit();

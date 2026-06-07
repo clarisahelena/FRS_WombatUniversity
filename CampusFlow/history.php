@@ -13,11 +13,13 @@ $id_sem = $semester . "-" . $periode;
 
 // Ambil semua semester yang pernah di-enroll oleh mahasiswa ini,
 $stmt = $conn->prepare("
-    SELECT DISTINCT s.Id_Sem, s.Periode, s.Tahun_Akademik
-    FROM Enroll e
-    JOIN Semester s ON e.Id_Sem = s.Id_Sem
-    WHERE e.NPM = ?
-    ORDER BY s.Tahun_Akademik DESC, s.Periode DESC
+    SELECT * FROM (
+        SELECT DISTINCT s.Id_Sem, s.Periode, s.Tahun_Akademik
+        FROM Enroll e
+        JOIN Semester s ON e.Id_Sem = s.Id_Sem
+        WHERE e.NPM = ?
+    ) AS SemesterMahasiswa
+    ORDER BY Tahun_Akademik DESC, Periode DESC
 ");
 $stmt->execute([$npm]);
 $semesters = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -37,7 +39,19 @@ foreach ($semesters as $sem) {
         ORDER BY mk.Nama
     ");
     $stmt2->execute([$sid, $npm, $sid]);
-    $courses = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+    $rawCourses = $stmt2->fetchAll(PDO::FETCH_ASSOC);
+
+    // Group by Id_MK supaya 1 matkul = 1 baris
+    $courses = [];
+    foreach ($rawCourses as $row) {
+        $id = $row['Id_MK'];
+        if (!isset($courses[$id])) {
+            $courses[$id] = $row;
+            $courses[$id]['jadwal'] = [];
+        }
+        $courses[$id]['jadwal'][] = $row['Hari'] . ', ' . substr($row['Jam_Mulai'],0,5) . '–' . substr($row['Jam_Selesai'],0,5);
+    }
+    $courses = array_values($courses);
 
     $totalSKS = array_sum(array_column($courses, 'SKS'));
     // $savedDate = !empty($courses) ? $courses[0]['Dibuat_pada'] : '-';
@@ -462,7 +476,7 @@ body{
                                 <?= htmlspecialchars($c['Id_MK']) ?> : <?= htmlspecialchars($c['NamaMK']) ?>
                             </div>
                             <div class="course-detail">
-                                <?= htmlspecialchars($c['Hari']) ?>, <?= fmtTime($c['Jam_Mulai']) ?>–<?= fmtTime($c['Jam_Selesai']) ?>
+                                <?= htmlspecialchars(implode(' | ', $c['jadwal'])) ?>
                             </div>
                         </div>
                         <div class="sks-num"><?= $c['SKS'] ?> SKS</div>

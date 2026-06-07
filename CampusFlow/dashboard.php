@@ -25,21 +25,33 @@ $sem = $stmt->fetch(PDO::FETCH_ASSOC);
 //? adalah placeholder yang nantinya nilainya akan di isi
 // query untuk mengambil database matakuliah yang dibuka pada frs sekaranhg
 $stmt = $conn->prepare("
-    SELECT mk.Id_MK, mk.Nama AS NamaMK, mk.SKS, j.Hari, j.Jam_Mulai, j.Jam_Selesai, d.Nama AS NamaDosen
+    SELECT mk.Id_MK, mk.Nama AS NamaMK, mk.SKS, j.Hari, j.Jam_Mulai, j.Jam_Selesai, d.Nama AS NamaDosen,
+        (SELECT SUM(mk2.SKS) FROM MataKuliah mk2 WHERE mk2.Id_MK IN (SELECT DISTINCT Id_MK FROM Jadwal WHERE Id_Sem = ?)) AS TotalSKS
     FROM Jadwal j
     JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
     JOIN Dosen d ON j.NID = d.NID
     WHERE j.Id_Sem = ? AND mk.Status_Aktif = 1
     ORDER BY mk.Nama
 ");
-$stmt->execute([$id_sem]);
+$stmt->execute([$id_sem, $id_sem]);
 $allCourses = $stmt->fetchAll(PDO::FETCH_ASSOC);//hasilnya dibuat array berdasarkan nama kolom, mengambil semua baris hasil query
-$totalMK = count($allCourses);
-$totalSKS = array_sum(array_column($allCourses, 'SKS'));
+$totalSKS = $allCourses[0]['TotalSKS'] ?? 0;
 
 function fmtTime($t) {
     return substr($t, 0, 5);
 }
+
+// Group by Id_MK supaya 1 matkul = 1 baris meskipun punya banyak jadwal
+$grouped = [];
+foreach ($allCourses as $row) {
+    $id = $row['Id_MK'];
+    if (!isset($grouped[$id])) {
+        $grouped[$id] = $row;
+        $grouped[$id]['jadwal'] = [];
+    }
+    $grouped[$id]['jadwal'][] = $row['Hari'] . ', ' . fmtTime($row['Jam_Mulai']) . '–' . fmtTime($row['Jam_Selesai']);
+}
+$totalMK = count($grouped);
 ?>
 <!DOCTYPE html>
 <html lang="id">
@@ -353,15 +365,15 @@ tr:hover td{
             </thead>
             <!-- isi tabel: loop tiap mata kuliah -->
             <tbody>
-                <?php foreach ($allCourses as $mk): ?>
+                <?php foreach ($grouped as $mk): ?>
                 <tr>
                     <td><?= htmlspecialchars($mk['Id_MK']) ?></td>
                     <td><?= htmlspecialchars($mk['NamaMK']) ?></td>
                     <td><?= $mk['SKS'] ?></td>
                     <td>
-                        <span class="jadwal-tag">
-                            <?= htmlspecialchars($mk['Hari']) ?>, <?= fmtTime($mk['Jam_Mulai']) ?>–<?= fmtTime($mk['Jam_Selesai']) ?>
-                        </span>
+                        <?php foreach ($mk['jadwal'] as $j): ?>
+                        <span class="jadwal-tag"><?= htmlspecialchars($j) ?></span>
+                        <?php endforeach; ?>
                     </td>
                     <td><?= htmlspecialchars($mk['NamaDosen']) ?></td>
                 </tr>
