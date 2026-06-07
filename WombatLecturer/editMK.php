@@ -25,27 +25,11 @@ $jadwal = $conn->prepare("
     SELECT Hari, Jam_Mulai, Jam_Selesai, Ruangan
     FROM Jadwal 
     WHERE Id_MK = ? AND Id_Sem = ?
-    ORDER BY jadwalKe
+    ORDER BY Jadwal_Ke
 ");
 $jadwal->execute([$id_mk, $id_sem]);
 $dataJadwal = $jadwal->fetchAll(PDO::FETCH_ASSOC);
 
-// //delete jadwal, dan mk yang ingin diedit
-// $conn->beginTransaction();
-
-// $delDetail = $conn->prepare("
-//     DELETE FROM Detail_Akademik
-//     WHERE Id_MK = ?
-// ");
-// $delDetail->execute([$id_mk]);
-
-// $delMK = $conn->prepare("
-//     DELETE FROM MataKuliah
-//     WHERE Id_MK = ?
-// ");
-// $delMK->execute([$id_mk]);
-
-// $conn->commit();
 //untuk menambah mata kuliah ke data base
 if(isset($_POST["edit_mk"])) {
     $nama = $_POST["nama"];
@@ -65,12 +49,13 @@ if(isset($_POST["edit_mk"])) {
 
     //UNTUK MENANGANI KALAU MATA KULIAH BELOM ADA
     //kode gabisa diganti supaya bisa update
+    //ga ada fitur bisa liat jadwal yang sebelumnya ada dan jadwal ga FK kemana mana jadi bisa update dan delete
     try {
         $conn->beginTransaction();
         $editMK = $conn->prepare("
             UPDATE MataKuliah 
             SET Nama = ?, SKS = ?
-            WHERE Id_MK = ? 
+            WHERE Id_MK = ?  
         ");
 
         $editMK->execute([$nama, $sks, $id_mk]);
@@ -79,7 +64,7 @@ if(isset($_POST["edit_mk"])) {
         $editJadwal1 = $conn->prepare("
             UPDATE Jadwal
             SET Hari = ?, Jam_Mulai = ?, Jam_Selesai = ?, Ruangan = ?
-            WHERE jadwalKe = 1 AND Id_MK = ? AND Id_Sem = ?
+            WHERE Jadwal_Ke = 1 AND Id_MK = ? AND Id_Sem = ?
         ");
             //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
             $editJadwal1->execute([$hari, $mulai, $selesai, $ruangan, $id_mk, $id_sem]);
@@ -91,7 +76,7 @@ if(isset($_POST["edit_mk"])) {
             $cekJadwal2 = $conn -> prepare("
                 SELECT COUNT(Id_MK)
                 FROM Jadwal
-                WHERE jadwalKe = 2 AND Id_MK = ? AND Id_Sem = ?
+                WHERE Jadwal_Ke = 2 AND Id_MK = ? AND Id_Sem = ?
             ");
             $cekJadwal2->execute([$id_mk, $id_sem]);
 
@@ -100,7 +85,7 @@ if(isset($_POST["edit_mk"])) {
                 $editJadwal2 = $conn->prepare("
                     UPDATE Jadwal
                     SET Hari = ?, Jam_Mulai = ?, Jam_Selesai = ?, Ruangan = ?
-                    WHERE jadwalKe = 2 AND Id_MK = ? AND Id_Sem = ?
+                    WHERE Jadwal_Ke = 2 AND Id_MK = ? AND Id_Sem = ?
                 ");
 
                 //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
@@ -119,7 +104,7 @@ if(isset($_POST["edit_mk"])) {
             //kalau ga diisi lagi, hapus dari database
             $delJadwal2 = $conn->prepare("
                 DELETE FROM Jadwal
-                WHERE Id_MK = ? AND Id_Sem = ? AND jadwalKe = 2
+                WHERE Id_MK = ? AND Id_Sem = ? AND Jadwal_Ke = 2
             ");
             $delJadwal2->execute([$id_mk, $id_sem]);
         }
@@ -131,7 +116,7 @@ if(isset($_POST["edit_mk"])) {
             $cekJadwal3 = $conn -> prepare("
                 SELECT COUNT(Id_MK)
                 FROM Jadwal
-                WHERE jadwalKe = 3 AND Id_MK = ? AND Id_Sem = ?
+                WHERE Jadwal_Ke = 3 AND Id_MK = ? AND Id_Sem = ?
             ");
             $cekJadwal3->execute([$id_mk, $id_sem]);
 
@@ -140,7 +125,7 @@ if(isset($_POST["edit_mk"])) {
                 $editJadwal3 = $conn->prepare("
                     UPDATE Jadwal
                     SET Hari = ?, Jam_Mulai = ?, Jam_Selesai = ?, Ruangan = ?
-                    WHERE jadwalKe = 3 AND Id_MK = ? AND Id_Sem = ?
+                    WHERE Jadwal_Ke = 3 AND Id_MK = ? AND Id_Sem = ?
                 ");
 
                 //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
@@ -159,7 +144,7 @@ if(isset($_POST["edit_mk"])) {
             //kalau ga diisi lagi, hapus dari database
             $delJadwal3 = $conn->prepare("
                 DELETE FROM Jadwal
-                WHERE Id_MK = ? AND Id_Sem = ? AND jadwalKe = 3
+                WHERE Id_MK = ? AND Id_Sem = ? AND Jadwal_Ke = 3
             ");
             $delJadwal3->execute([$id_mk, $id_sem]);
         }

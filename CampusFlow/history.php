@@ -33,7 +33,7 @@ foreach ($semesters as $sem) {
         FROM Enroll e
         JOIN MataKuliah mk ON e.Id_MK = mk.Id_MK
         JOIN Jadwal j ON j.Id_MK = mk.Id_MK AND j.Id_Sem = ?
-        WHERE e.NPM = ? AND e.Id_Sem = ?
+        WHERE e.NPM = ? AND e.Id_Sem = ? AND mk.Status_Aktif = 1
         ORDER BY mk.Nama
     ");
     $stmt2->execute([$sid, $npm, $sid]);

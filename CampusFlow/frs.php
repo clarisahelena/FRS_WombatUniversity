@@ -30,7 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_mk'])) {
         $stmt2 = $conn->prepare("
             SELECT mk.Id_MK, mk.Nama AS NamaMK, mk.SKS, j.Hari, j.Jam_Mulai, j.Jam_Selesai
             FROM Jadwal j JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
-            WHERE j.Id_Sem = ? AND mk.Id_MK IN ($placeholders) 
+            WHERE j.Id_Sem = ? AND mk.Id_MK IN ($placeholders)  AND mk.Status_Aktif = 1
         "); //arti dari ? adalah placeholder yang nantinya bisa diisi
         $stmt2->execute($params);
         $jadwalSelected = $stmt2->fetchAll(PDO::FETCH_ASSOC);//ambil semua jadwal matkul yang dipilih
@@ -70,7 +70,7 @@ $stmt = $conn->prepare("
     FROM Jadwal j
     JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
     JOIN Dosen d ON j.NID = d.NID
-    WHERE j.Id_Sem = ?
+    WHERE j.Id_Sem = ? AND mk.Status_Aktif = 1
     ORDER BY mk.Nama
 ");
 $stmt->execute([$id_sem]);

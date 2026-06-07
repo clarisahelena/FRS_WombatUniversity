@@ -26,7 +26,7 @@ $stmt = $conn->prepare("
     JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
     JOIN Dosen d ON j.NID = d.NID
     JOIN Enroll e ON mk.Id_MK = e.Id_MK
-    WHERE j.Id_Sem = ? AND e.npm = ?
+    WHERE j.Id_Sem = ? AND e.npm = ? AND mk.Status_Aktif = 1
     ORDER BY
         CASE j.Hari WHEN 'Senin' THEN 1 WHEN 'Selasa' THEN 2 WHEN 'Rabu' THEN 3
                     WHEN 'Kamis' THEN 4 WHEN 'Jumat' THEN 5 WHEN 'Sabtu' THEN 6 ELSE 7 END,

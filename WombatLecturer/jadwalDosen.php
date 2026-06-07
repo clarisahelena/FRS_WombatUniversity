@@ -52,6 +52,7 @@ $stmt = $conn->prepare("
     JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
     WHERE j.Id_Sem = ?
     AND j.NID = ?
+    AND mk.Status_Aktif = 1
     ORDER BY 
         CASE j.Hari
             WHEN 'Senin' THEN 1
@@ -72,7 +73,7 @@ $SKSDosen = $conn->prepare("
     SELECT SUM(mk.SKS) AS JumlahSKS
     FROM Detail_Akademik AS DA
     JOIN Matakuliah AS MK ON MK.Id_MK = DA.Id_MK
-    WHERE DA.NID = ?
+    WHERE DA.NID = ? AND MK.Status_Aktif = 1
 ");
 
 $SKSDosen->execute([$nid]);

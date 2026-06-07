@@ -44,7 +44,7 @@ $stmt = $conn->prepare("
     FROM Jadwal j
     JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
     JOIN Dosen d ON j.NID = d.NID
-    WHERE j.Id_Sem = ?
+    WHERE j.Id_Sem = ? AND mk.Status_Aktif = 1
     ORDER BY mk.Nama
 ");
 

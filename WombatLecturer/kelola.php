@@ -1,4 +1,5 @@
 <?php
+//mulai sesi
 session_start();
 if (!isset($_SESSION["id_user"])) {
     header("Location: ../index.php");
@@ -6,12 +7,15 @@ if (!isset($_SESSION["id_user"])) {
 }
 require_once "../Koneksi.php";
 
+//ambil nid dari login
 $nid = $_SESSION["id_user"];
 
+//ambil semester dari kelola semester
 $semester = $_POST["semester"] ?? $_SESSION["semester"] ?? "25";
 $periode  = $_POST["periode"] ?? $_SESSION["periode"] ?? "1";
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST["tambah_mk"])) {
+//klaau mausk ke form tambah MK
+if (isset($_POST["ganti-semester"])) {
 
     $_SESSION["semester"] = $semester;
     $_SESSION["periode"] = $periode;
@@ -20,6 +24,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !isset($_POST["tambah_mk"])) {
     exit;
 }
 
+if (isset($_POST["hapus-mk"])) {
+
+    $id_mk = $_POST["hapus-id-mk"];
+
+    $hapusMK = $conn->prepare("
+        UPDATE MataKuliah
+        SET Status_Aktif = 0
+        WHERE Id_MK = ?
+    ");
+    $hapusMK->execute([$id_mk]);
+
+    header("Location: kelola.php");
+    exit;
+}
+
+//buat id semester dengan format tahun akademik (awal) - 1 untuk ganjil / 2 untuk genap
 $id_sem = ($_SESSION["semester"] ?? "25") . '-' . ($_SESSION["periode"] ?? "1");
 
 //query semester
@@ -31,17 +51,29 @@ $stmt->execute([$id_sem]);
 $sem = $stmt->fetch(PDO::FETCH_ASSOC);
 $semLabel = trim($sem['Periode'] ?? 'Ganjil') . ' ' . ($sem['Tahun_Akademik'] ?? '2025') . '/' . (($sem['Tahun_Akademik'] ?? 2025) + 1);
 
-//ambil semua mata kuliah yang tersedia pada semester tertentu
+//ambil semua mata kuliah yang tersedia pada semester tertentu yang masih aktif
 // tabel : mata kuliah, detail akademik, dosen
 $stmtMK = $conn->prepare("
     SELECT MK.Id_MK, MK.Nama AS NamaMK, d.NID AS NID, d.Nama AS NamaDosen, MK.SKS as SKS
     FROM MataKuliah AS MK
     JOIN Detail_Akademik AS da ON da.Id_MK=MK.Id_MK
     JOIN Dosen as d ON d.NID = da.NID
-    WHERE da.Id_Sem = ?
+    WHERE da.Id_Sem = ? AND MK.Status_Aktif = 1
 ");
 $stmtMK->execute([$id_sem]);
 $courses = $stmtMK->fetchAll(PDO::FETCH_ASSOC);
+
+//ambil semua mata kuliah yang masih aktif tapi belom muncul di semester ini
+// tabel : mata kuliah dan detail akademik
+$aktifMK = $conn->prepare("
+    SELECT MK.Id_MK, MK.Nama AS NamaMK, MK.SKS AS SKS
+    FROM MataKuliah AS MK
+    LEFT JOIN Detail_Akademik AS DA
+    ON DA.Id_MK = MK.Id_MK AND DA.Id_Sem = ?
+    WHERE DA.Id_Sem is NULL AND MK.Status_Aktif = 1
+");
+$aktifMK->execute([$id_sem]);
+$dataMKaktif = $aktifMK->fetchAll(PDO::FETCH_ASSOC);
 
 //untuk menambah mata kuliah ke data base
 if(isset($_POST["tambah_mk"])) {
@@ -64,12 +96,25 @@ if(isset($_POST["tambah_mk"])) {
     //UNTUK MENANGANI KALAU MATA KULIAH BELOM ADA
     try {
         $conn->beginTransaction();
-        $tambahMK = $conn->prepare("
-            INSERT INTO MataKuliah (Id_MK, Nama, SKS)
-            VALUES (?, ?, ?)
-        ");
 
-        $tambahMK->execute([$kode, $nama, $sks]);
+        //cek dulu apakah nama MK / kode MK sudah ada
+        $cariMK = $conn->prepare("
+            SELECT COUNT(Id_MK) AS total
+            FROM MataKuliah
+            WHERE Id_MK = ? AND Status_Aktif = 1
+        ");
+        $cariMK->execute([$kode]);
+        $dataCariMK = $cariMK->fetch(PDO::FETCH_ASSOC);
+        //kalau sudah ada, jangan tambahkan lagi mata kuliahnya
+
+        if($dataCariMK['total'] == 0) {
+            $tambahMK = $conn->prepare("
+                INSERT INTO MataKuliah (Id_MK, Nama, SKS, Status_Aktif)
+                VALUES (?, ?, ?, ?)
+            ");
+
+            $tambahMK->execute([$kode, $nama, $sks, 1]);
+        }
 
         //tambah juga di jadwal
         $tambahJadwal = $conn->prepare("
@@ -77,7 +122,7 @@ if(isset($_POST["tambah_mk"])) {
             VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
 
-        //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
+        //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester lalu tambahkan urutan jadwal
         $id_jadwal = substr($kode,-3).$semester.$periode.'1';
         
         $tambahJadwal->execute([$id_jadwal, 1, $kode, $id_sem, $nid, $hari, $mulai, $selesai, $ruangan]);
@@ -193,6 +238,11 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
 .edit-btn{border:none;border-radius:10px;padding:16px;font-size:15px;font-weight:700;cursor:pointer}
 .edit-btn.disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
 .edit-btn{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
+
+.hapus-mk{border:none;border-radius:10px;padding:10px;font-size:15px;font-weight:700;cursor:pointer; margin-top:5px}
+.hapus-mk{background:red;color:#fff;box-shadow:0 4px 14px rgba(255, 255, 255, 0.3)}
+.hapus-mk.disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
+
 .course-name{font-size:17px;font-weight:700;color:#0f172a;margin-bottom:7px;line-height:1.3}
 .course-meta{display:flex;gap:16px;font-size:14px;color:#64748b}
 .meta-item{display:flex;align-items:center;gap:5px}
@@ -304,11 +354,24 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
                                 <a href="editMK.php?Id_MK=<?= $c['Id_MK'] ?>&Id_Sem=<?=$id_sem?>" class="edit-btn">
                                     Edit Mata Kuliah
                                 </a>
+                                <form method="POST">
+                                    <input type="hidden" name="hapus-id-mk" value="<?= $c['Id_MK'] ?>">
+
+                                    <button type="submit" name="hapus-mk" class="hapus-mk">
+                                        Hapus Mata Kuliah
+                                    </button>
+                                </form>
                             <?php else: ?>
                                 <button class="edit-btn disabled" disabled>
                                     Tidak Bisa Edit
                                 </button>
+
+                                <button class="hapus-mk disabled" disabled>
+                                    Hapus Mata Kuliah
+                                </button>
+                            </form>
                             <?php endif; ?>
+                           
                         </div>
                     </div>
 
@@ -363,7 +426,7 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
                         <option value="1" <?= $periode == "1" ? "selected" : ""?>>Ganjil</option>
                         <option value="2" <?= $periode == "2" ? "selected" : ""?>>Genap</option>
                     </select>
-                    <button type="submit" class="tetapkan-btn active">
+                    <button type="submit" name="ganti-semester" class="tetapkan-btn active">
                         Tetapkan
                     </button>
                 </form>
@@ -387,20 +450,40 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
                  <span>Tambah mata kuliah baru untuk semester ini dengan mengisi form dibawah</span>
             </div>
                 <form method="POST">
+                    <span>Pilih mata kuliah yang sebelumnya sudah ada</span>
+                    <select name="mk-sebelumnya" id="mk-sebelumnya" onchange="isiDataMK()">
+                        <option value="">
+                            -- Pilih Mata Kuliah --
+                        </option>
+
+                        <?php foreach($dataMKaktif as $d): ?>
+
+                            <option 
+                                value="<?= htmlspecialchars($d['Id_MK']) ?>"
+                                data-namaMK ="<?= htmlspecialchars($d['NamaMK']) ?>"
+                                data-sks="<?= htmlspecialchars($d['SKS']) ?>"
+                            >
+                                <?= htmlspecialchars($d['NamaMK']) ?>
+                            </option>
+                        <?php endforeach; ?> 
+                    </select> 
+
+                    <br><br>
+
                     <div class="kode-group">
                         <span>Kode Mata Kuliah</span>
 
-                        <input type="text" name="kode" maxlength="7" placeholder="Isi kode dengan panjang 7" required>
+                        <input type="text" id="kode" name="kode" maxlength="7" placeholder="Isi kode dengan panjang 7" required>
                     </div>
                     <div class="nama-group">
                         <span>Nama Mata Kuliah</span>
 
-                        <input type="text" name="nama" placeholder="Isi nama Mata Kuliah" required>
+                        <input type="text" id="nama" name="nama" placeholder="Isi nama Mata Kuliah" required>
                     </div>
                     <div class="sks-group">
                         <span>SKS Mata Kuliah</span>
 
-                        <input type="text" name="sks" placeholder="Isi SKS Mata Kuliah" required>
+                        <input type="text" id="sks" name="sks" placeholder="Isi SKS Mata Kuliah" required>
                     </div>
 
                     <span>Tambah jadwal 1 (wajib diisi)</span>
@@ -488,6 +571,21 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
                         </button>
                 </form>
                 <script>
+                function isiDataMK() {
+                    let dropdown = document.getElementById("mk-sebelumnya");
+                    let selected = dropdown.options[dropdown.selectedIndex];
+
+                    if(selected.value == "") {
+                        document.getElementById("kode").value = "";
+                        document.getElementById("nama").value = "";
+                        document.getElementById("sks").value = "";
+                        return;
+                    }
+
+                    document.getElementById("kode").value = selected.value;
+                    document.getElementById("nama").value = selected.getAttribute("data-namaMK");
+                    document.getElementById("sks").value = selected.getAttribute("data-sks");
+                }
                 function ambilData() {
                     let pilihan = document.getElementById("semester").value;
 
