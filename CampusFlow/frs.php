@@ -47,9 +47,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_mk'])) {
             }
 
             //hapus enroll lama apabila terjaid perubahan frs
-            $conn->prepare("DELETE FROM Enroll WHERE Id_FRS = (SELECT Id_FRS FROM FRS WHERE NPM = ? AND Id_FRS = ?) AND Id_Sem = ?")->execute([$npm, $id_frs, $id_sem]);
+            $conn->prepare("
+                DELETE FROM Enroll 
+                WHERE Id_FRS = (
+                    SELECT Id_FRS 
+                    FROM FRS 
+                    WHERE NPM = ? AND Id_FRS = ?
+                ) 
+                AND Id_Sem = ?
+            ")->execute([$npm, $id_frs, $id_sem]);
             //inseert enroll baru
-            $ins = $conn->prepare("INSERT INTO Enroll (NPM, Id_MK, Id_Sem, Id_FRS) VALUES (?, ?, ?, (SELECT Id_FRS FROM FRS WHERE NPM = ? AND Id_FRS = ?))");
+            $ins = $conn->prepare("
+                INSERT INTO Enroll (NPM, Id_MK, Id_Sem, Id_FRS) 
+                VALUES (?, ?, ?, (
+                    SELECT Id_FRS 
+                    FROM FRS 
+                    WHERE NPM = ? AND Id_FRS = ?
+                ))
+            ");
             //loop untuk semua matkul yang dipilih, masukan ke tabel enroll
             foreach ($selected as $id_mk) {
                 $ins->execute([$npm, $id_mk, $id_sem, $npm, $id_frs]);

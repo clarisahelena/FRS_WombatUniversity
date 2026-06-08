@@ -79,10 +79,16 @@ if(isset($_POST["edit_mk"])) {
         $editJadwal1 = $conn->prepare("
             UPDATE Jadwal
             SET Hari = ?, Jam_Mulai = ?, Jam_Selesai = ?, Ruangan = ?
-            WHERE Jadwal_Ke = 1 AND Id_MK = ? AND Id_Sem = ?
+            WHERE Jadwal_Ke = 1 
+            AND Id_MK = (
+                SELECT Id_MK 
+                FROM MataKuliah 
+                WHERE Nama = ?
+            ) 
+            AND Id_Sem = ?
         ");
             //buat id jadwal dengan ambil 3 digit terakhir MK dan gabungkan dengan semester
-            $editJadwal1->execute([$hari, $mulai, $selesai, $ruangan, $id_mk, $id_sem]);
+            $editJadwal1->execute([$hari, $mulai, $selesai, $ruangan, $nama, $id_sem]);
 
         //edit jadwal kedua
         //kalau jadwal kedua diisi, masukkan ke database
@@ -119,9 +125,15 @@ if(isset($_POST["edit_mk"])) {
             //kalau ga diisi lagi, hapus dari database
             $delJadwal2 = $conn->prepare("
                 DELETE FROM Jadwal
-                WHERE Id_MK = ? AND Id_Sem = ? AND Jadwal_Ke = 2
+                WHERE Id_MK = (
+                    SELECT Id_MK 
+                    FROM MataKuliah 
+                    WHERE Nama = ?
+                ) 
+                AND Id_Sem = ? 
+                AND Jadwal_Ke = 2
             ");
-            $delJadwal2->execute([$id_mk, $id_sem]);
+            $delJadwal2->execute([$nama, $id_sem]);
         }
         
         //edit jadwal ketiga
@@ -159,9 +171,15 @@ if(isset($_POST["edit_mk"])) {
             //kalau ga diisi lagi, hapus dari database
             $delJadwal3 = $conn->prepare("
                 DELETE FROM Jadwal
-                WHERE Id_MK = ? AND Id_Sem = ? AND Jadwal_Ke = 3
+                WHERE Jadwal_Ke = 3 
+                AND Id_MK = (
+                    SELECT Id_MK 
+                    FROM MataKuliah 
+                    WHERE Nama = ?
+                ) 
+                AND Id_Sem = ?
             ");
-            $delJadwal3->execute([$id_mk, $id_sem]);
+            $delJadwal3->execute([$nama, $id_sem]);
         }
 
         $conn->commit();

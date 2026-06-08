@@ -51,17 +51,32 @@ $stmt->execute([$id_sem]);
 $sem = $stmt->fetch(PDO::FETCH_ASSOC);
 $semLabel = trim($sem['Periode'] ?? 'Ganjil') . ' ' . ($sem['Tahun_Akademik'] ?? '2025') . '/' . (($sem['Tahun_Akademik'] ?? 2025) + 1);
 
-//ambil semua mata kuliah yang tersedia pada semester tertentu yang masih aktif
-// tabel : mata kuliah, detail akademik, dosen
+//ambil semua mata kuliah yang tersedia pada semester tertentu (termasuk jadwal)
 $stmtMK = $conn->prepare("
-    SELECT MK.Id_MK, MK.Nama AS NamaMK, d.NID AS NID, d.Nama AS NamaDosen, MK.SKS as SKS
+    SELECT MK.Id_MK, MK.Nama AS NamaMK, d.NID AS NID, d.Nama AS NamaDosen, MK.SKS as SKS,
+           j.Hari, j.Jam_Mulai
     FROM MataKuliah AS MK
     JOIN Detail_Akademik AS da ON da.Id_MK=MK.Id_MK
     JOIN Dosen as d ON d.NID = da.NID
-    WHERE da.Id_Sem = ? AND MK.Status_Aktif = 1
+    LEFT JOIN Jadwal AS j ON j.Id_MK = MK.Id_MK AND j.Id_Sem = da.Id_Sem
+    WHERE da.Id_Sem = ?
 ");
 $stmtMK->execute([$id_sem]);
-$courses = $stmtMK->fetchAll(PDO::FETCH_ASSOC);
+$rawCourses = $stmtMK->fetchAll(PDO::FETCH_ASSOC);
+
+// Group by Id_MK
+$courses = [];
+foreach ($rawCourses as $row) {
+    $id = $row['Id_MK'];
+    if (!isset($courses[$id])) {
+        $courses[$id] = $row;
+        $courses[$id]['jadwalList'] = [];
+    }
+    if ($row['Hari']) {
+        $courses[$id]['jadwalList'][] = ['Hari' => $row['Hari'], 'Jam_Mulai' => $row['Jam_Mulai']];
+    }
+}
+$courses = array_values($courses);
 
 //ambil semua mata kuliah yang masih aktif tapi belom muncul di semester ini
 // tabel : mata kuliah dan detail akademik
@@ -323,13 +338,7 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
             $sksColorMap = [2=>'#ef4444', 3=>'#f97316', 4=>'#2563eb'];
             foreach ($courses as $c):
                 $badgeColor = $sksColorMap[$c['SKS']] ?? '#2563eb';
-                //dari tabel jadwal, pilih hari dan jam mulai untuk ditampilkan
-                $jadwal = $conn->prepare("
-                    SELECT Hari, Jam_Mulai 
-                    FROM Jadwal 
-                    WHERE Id_MK = ? AND Id_Sem = ?");
-                $jadwal->execute([$c['Id_MK'], $id_sem]);
-                $dataJadwal = $jadwal->fetchAll(PDO::FETCH_ASSOC);
+                $dataJadwal = $c['jadwalList'];
             ?>
             
             <div class="course-card">

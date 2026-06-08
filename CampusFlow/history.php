@@ -11,57 +11,45 @@ $semester = $_GET["semester"] ?? ($_SESSION["semester"] ?? "25");
 
 $id_sem = $semester . "-" . $periode;
 
-// Ambil semua semester yang pernah di-enroll oleh mahasiswa ini,
+// Ambil semua data enrollment + jadwal dalam 1 query
 $stmt = $conn->prepare("
-    SELECT * FROM (
-        SELECT DISTINCT s.Id_Sem, s.Periode, s.Tahun_Akademik
-        FROM Enroll e
-        JOIN Semester s ON e.Id_Sem = s.Id_Sem
-        WHERE e.NPM = ?
-    ) AS SemesterMahasiswa
-    ORDER BY Tahun_Akademik DESC, Periode DESC
+    SELECT s.Id_Sem, s.Periode, s.Tahun_Akademik,
+           mk.Id_MK, mk.Nama AS NamaMK, mk.SKS, j.Hari, j.Jam_Mulai, j.Jam_Selesai
+    FROM Enroll e
+    JOIN Semester s ON e.Id_Sem = s.Id_Sem
+    JOIN MataKuliah mk ON e.Id_MK = mk.Id_MK
+    JOIN Jadwal j ON j.Id_MK = mk.Id_MK AND j.Id_Sem = e.Id_Sem
+    WHERE e.NPM = ? AND mk.Status_Aktif = 1
+    ORDER BY s.Tahun_Akademik DESC, s.Periode DESC, mk.Nama
 ");
 $stmt->execute([$npm]);
-$semesters = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$allRows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// Bangun array $history: satu entry per semester
+// Group by semester, lalu by Id_MK
 $history = [];
-// Untuk tiap semester lakukan hal berikut
-foreach ($semesters as $sem) {
-    $sid = $sem['Id_Sem']; //ambil id semester
-    //lakukan query untuk ambil mata kuliah dan jadwal, ubah formt tanggal SQL server jadi string
-    $stmt2 = $conn->prepare("
-        SELECT mk.Id_MK, mk.Nama AS NamaMK, mk.SKS, j.Hari, j.Jam_Mulai, j.Jam_Selesai
-        FROM Enroll e
-        JOIN MataKuliah mk ON e.Id_MK = mk.Id_MK
-        JOIN Jadwal j ON j.Id_MK = mk.Id_MK AND j.Id_Sem = ?
-        WHERE e.NPM = ? AND e.Id_Sem = ? AND mk.Status_Aktif = 1
-        ORDER BY mk.Nama
-    ");
-    $stmt2->execute([$sid, $npm, $sid]);
-    $rawCourses = $stmt2->fetchAll(PDO::FETCH_ASSOC);
-
-    // Group by Id_MK supaya 1 matkul = 1 baris
-    $courses = [];
-    foreach ($rawCourses as $row) {
-        $id = $row['Id_MK'];
-        if (!isset($courses[$id])) {
-            $courses[$id] = $row;
-            $courses[$id]['jadwal'] = [];
-        }
-        $courses[$id]['jadwal'][] = $row['Hari'] . ', ' . substr($row['Jam_Mulai'],0,5) . '–' . substr($row['Jam_Selesai'],0,5);
+foreach ($allRows as $row) {
+    $sid = $row['Id_Sem'];
+    if (!isset($history[$sid])) {
+        $history[$sid] = [
+            'sem' => ['Id_Sem' => $sid, 'Periode' => $row['Periode'], 'Tahun_Akademik' => $row['Tahun_Akademik']],
+            'courses' => [],
+            'totalSKS' => 0,
+        ];
     }
-    $courses = array_values($courses);
-
-    $totalSKS = array_sum(array_column($courses, 'SKS'));
-    // $savedDate = !empty($courses) ? $courses[0]['Dibuat_pada'] : '-';
-    $history[] = [
-        'sem'      => $sem,
-        'courses'  => $courses,
-        'totalSKS' => $totalSKS,
-        // 'savedDate'=> $savedDate,
-    ];
+    $id = $row['Id_MK'];
+    if (!isset($history[$sid]['courses'][$id])) {
+        $history[$sid]['courses'][$id] = $row;
+        $history[$sid]['courses'][$id]['jadwal'] = [];
+    }
+    $history[$sid]['courses'][$id]['jadwal'][] = $row['Hari'] . ', ' . substr($row['Jam_Mulai'],0,5) . '–' . substr($row['Jam_Selesai'],0,5);
 }
+// Finalize: convert courses to array and calculate totalSKS
+foreach ($history as &$h) {
+    $h['courses'] = array_values($h['courses']);
+    $h['totalSKS'] = array_sum(array_column($h['courses'], 'SKS'));
+}
+unset($h);
+$history = array_values($history);
 
 function fmtTime($t){ return substr($t,0,5); }
 ?>

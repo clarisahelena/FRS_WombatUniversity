@@ -25,14 +25,14 @@ $stmt = $conn->prepare("
     FROM Jadwal j
     JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
     JOIN Dosen d ON j.NID = d.NID
-    WHERE j.Id_Sem = ? 
-    AND mk.Id_MK IN (SELECT Id_MK FROM Enroll WHERE NPM = ? AND Id_Sem = ?)
+    JOIN Enroll e ON e.Id_MK = mk.Id_MK AND e.Id_Sem = j.Id_Sem
+    WHERE j.Id_Sem = ? AND e.NPM = ?
     ORDER BY
         CASE j.Hari WHEN 'Senin' THEN 1 WHEN 'Selasa' THEN 2 WHEN 'Rabu' THEN 3
                     WHEN 'Kamis' THEN 4 WHEN 'Jumat' THEN 5 WHEN 'Sabtu' THEN 6 ELSE 7 END,
         j.Jam_Mulai
 ");
-$stmt->execute([$id_sem, $npm, $id_sem]);
+$stmt->execute([$id_sem, $npm]);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC); //jadiin array of array
 
 function fmtTime($t){ return substr($t,0,5); } //ambil ham dan menir saja untuk waktu mulai dan selesai
