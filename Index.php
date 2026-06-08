@@ -21,7 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $_SESSION["nama"]    = $user["Nama"];
             $_SESSION["email"]   = $user["Email"];
             $_SESSION["role"]    = "mahasiswa";
-            header("Location: CampusFlow/dashboard.php");
+            header("Location: WombatStudent/dashboardMahasiswa.php");
             exit;
         } else {
             $error = "Email atau password salah.";

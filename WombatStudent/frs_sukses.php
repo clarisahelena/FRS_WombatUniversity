@@ -263,8 +263,8 @@ tr:last-child td{
     <!-- BUTTONS: navigasi setelah sukses -->
 
     <div class="btn-row">
-        <a href="history.php" class="btn btn-outline">Lihat Riwayat</a>
-        <a href="dashboard.php" class="btn btn-primary">Kembali ke Beranda</a>
+        <a href="historyFRS.php" class="btn btn-outline">Lihat Riwayat</a>
+        <a href="dashboardMahasiswa.php" class="btn btn-primary">Kembali ke Beranda</a>
     </div>
 
 </div>

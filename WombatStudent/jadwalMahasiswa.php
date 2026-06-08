@@ -26,7 +26,7 @@ $stmt = $conn->prepare("
     JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
     JOIN Dosen d ON j.NID = d.NID
     JOIN Enroll e ON e.Id_MK = mk.Id_MK AND e.Id_Sem = j.Id_Sem
-    WHERE j.Id_Sem = ? AND e.NPM = ?
+    WHERE j.Id_Sem = ? AND e.NPM = ? AND mk.Status_Aktif = 1
     ORDER BY
         CASE j.Hari WHEN 'Senin' THEN 1 WHEN 'Selasa' THEN 2 WHEN 'Rabu' THEN 3
                     WHEN 'Kamis' THEN 4 WHEN 'Jumat' THEN 5 WHEN 'Sabtu' THEN 6 ELSE 7 END,
@@ -262,9 +262,9 @@ tr:hover td{
 
     <!-- menu navigasi -->
     <nav class="nav-links">
-        <a href="dashboard.php">Beranda</a>
-        <a href="jadwal.php" class="active">Jadwal</a>
-        <a href="history.php">Riwayat</a>
+        <a href="dashboardMahasiswa.php">Beranda</a>
+        <a href="jadwalMahasiswa.php" class="active">Jadwal</a>
+        <a href="historyFRS.php">Riwayat</a>
     </nav>
 
 </div>

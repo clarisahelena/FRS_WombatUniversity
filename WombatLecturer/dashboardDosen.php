@@ -269,7 +269,7 @@ tr:hover{
 
     <!-- TABLE: tabel semua jadwal semester ini -->
 
-    <div class="section-title">Seluruh Jadwal Semester Ini</div>
+    <div class="section-title">Seluruh Mata Kuliah Semester Ini</div>
 
     <div class="table-wrap">
         <table>

@@ -381,9 +381,9 @@ body{
 
     <!-- menu navigasi -->
     <nav class="nav-links">
-        <a href="dashboard.php">Beranda</a>
-        <a href="jadwal.php">Jadwal</a>
-        <a href="history.php" class="active">Riwayat</a>
+        <a href="dashboardMahasiswa.php">Beranda</a>
+        <a href="jadwalMahasiswa.php">Jadwal</a>
+        <a href="historyFRS.php" class="active">Riwayat</a>
     </nav>
 
 </div>

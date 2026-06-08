@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_mk'])) {
             //insert kode frs baru     
             $stmt2->execute([$id_frs]); 
             if (!$stmt2->fetch()) {
-                $conn->prepare("INSERT INTO FRS (Id_FRS, NPM) VALUES (?, ?)")->execute([$id_frs, $npm]);
+                $conn->prepare("INSERT INTO FRS (Id_FRS, NPM, Id_Sem) VALUES (?, ?, ?)")->execute([$id_frs, $npm, $id_sem]);
             }
 
             //hapus enroll lama apabila terjaid perubahan frs
@@ -52,9 +52,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_mk'])) {
                 WHERE Id_FRS = (
                     SELECT Id_FRS 
                     FROM FRS 
-                    WHERE NPM = ? AND Id_FRS = ?
+                    WHERE NPM = ? AND Id_Sem = ?
                 ) 
-                AND Id_Sem = ?
             ")->execute([$npm, $id_frs, $id_sem]);
             //inseert enroll baru
             $ins = $conn->prepare("
@@ -62,12 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_mk'])) {
                 VALUES (?, ?, ?, (
                     SELECT Id_FRS 
                     FROM FRS 
-                    WHERE NPM = ? AND Id_FRS = ?
+                    WHERE NPM = ? AND Id_Sem = ?
                 ))
             ");
             //loop untuk semua matkul yang dipilih, masukan ke tabel enroll
             foreach ($selected as $id_mk) {
-                $ins->execute([$npm, $id_mk, $id_sem, $npm, $id_frs]);
+                $ins->execute([$npm, $id_mk, $id_sem, $npm, $id_sem]);
             }
             $conn->commit();//simpan semua perubahan permanen
             $_SESSION['frs_result'] = ['semester' => $semLabel, 'courses' => $MKSelected];//simpan hasil ke session
@@ -441,9 +440,9 @@ body{
 
     <!-- menu navigasi -->
     <nav class="nav-links">
-        <a href="dashboard.php">Beranda</a>
-        <a href="jadwal.php">Jadwal</a>
-        <a href="history.php">Riwayat</a>
+        <a href="dashboardMahasiswa.php">Beranda</a>
+        <a href="jadwalMahasiswa.php">Jadwal</a>
+        <a href="historyFRS.php">Riwayat</a>
     </nav>
 
 </div>

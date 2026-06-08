@@ -303,9 +303,9 @@ tr:hover td{
 
     <!-- navigasi: Beranda, Jadwal, Riwayat -->
     <nav class="nav-links">
-        <a href="dashboard.php" class="active">Beranda</a>
-        <a href="jadwal.php">Jadwal</a>
-        <a href="history.php">Riwayat</a>
+        <a href="dashboardMahasiswa.php" class="active">Beranda</a>
+        <a href="jadwalMahasiswa.php">Jadwal</a>
+        <a href="historyFRS.php">Riwayat</a>
     </nav>
 
 </div>
