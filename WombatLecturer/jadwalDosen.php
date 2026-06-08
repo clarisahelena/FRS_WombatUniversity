@@ -69,19 +69,19 @@ $stmt->execute([$id_sem, $nid]);
 
 $jadwalDosen = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-$SKSDosen = $conn->prepare("
-    SELECT SUM(mk.SKS) AS JumlahSKS
+$MKDosen = $conn->prepare("
+    SELECT SUM(mk.SKS) AS JumlahSKS, COUNT(mk.Id_MK) AS JumlahMK
     FROM Detail_Akademik AS DA
     JOIN Matakuliah AS MK ON MK.Id_MK = DA.Id_MK
     WHERE DA.NID = ? AND DA.Id_Sem = ? AND MK.Status_Aktif = 1
 ");
 
-$SKSDosen->execute([$nid, $id_sem]);
-$dataSKS = $SKSDosen->fetch(PDO::FETCH_ASSOC);
+$MKDosen->execute([$nid, $id_sem]);
+$dataMK = $MKDosen->fetch(PDO::FETCH_ASSOC);
 
 // hitung total
-$totalMK = count($jadwalDosen);
-$totalSKS = $dataSKS['JumlahSKS'];
+$totalMK = $dataMK['JumlahMK'];
+$totalSKS = $dataMK['JumlahSKS'];
 
 // format jam
 function fmtTime($t) {

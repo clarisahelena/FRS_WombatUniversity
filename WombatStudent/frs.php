@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_mk'])) {
                     FROM FRS 
                     WHERE NPM = ? AND Id_Sem = ?
                 ) 
-            ")->execute([$npm, $id_frs, $id_sem]);
+            ")->execute([$npm, $id_sem]);
             //inseert enroll baru
             $ins = $conn->prepare("
                 INSERT INTO Enroll (NPM, Id_MK, Id_Sem, Id_FRS) 
