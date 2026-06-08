@@ -246,7 +246,6 @@ tr:last-child td{
                     <th>Kode</th>
                     <th>Nama Mata Kuliah</th>
                     <th>SKS</th>
-                    <th>Jadwal</th>
                 </tr>
             </thead>
             <tbody>
@@ -255,7 +254,6 @@ tr:last-child td{
                     <td><?= htmlspecialchars($c['Id_MK']) ?></td>
                     <td><?= htmlspecialchars($c['NamaMK']) ?></td>
                     <td><?= $c['SKS'] ?></td>
-                    <td><?= htmlspecialchars($c['Hari']) ?>, <?= fmtTime($c['Jam_Mulai']) ?>–<?= fmtTime($c['Jam_Selesai']) ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>

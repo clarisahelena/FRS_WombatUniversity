@@ -28,12 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_mk'])) {
         $params = array_merge([trim($id_sem)], $selected); //gabungkan semester dan daftar mata kuliah
         //query untuk mengambbil id mk, nama mk, sks mk, dan jadwalnya
         $stmt2 = $conn->prepare("
-            SELECT mk.Id_MK, mk.Nama AS NamaMK, mk.SKS, j.Hari, j.Jam_Mulai, j.Jam_Selesai
-            FROM Jadwal j JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
-            WHERE j.Id_Sem = ? AND mk.Id_MK IN ($placeholders)  AND mk.Status_Aktif = 1
+            SELECT mk.Id_MK, mk.Nama AS NamaMK, mk.SKS
+            FROM Matakuliah as mk
+            JOIN Detail_Akademik as da ON da.Id_MK = mk.id_mk
+            WHERE da.id_sem = ? AND mk.Id_MK IN ($placeholders)  AND mk.Status_Aktif = 1
         "); //arti dari ? adalah placeholder yang nantinya bisa diisi
         $stmt2->execute($params);
-        $jadwalSelected = $stmt2->fetchAll(PDO::FETCH_ASSOC);//ambil semua jadwal matkul yang dipilih
+        $MKSelected = $stmt2->fetchAll(PDO::FETCH_ASSOC);//ambil semua jadwal matkul yang dipilih
 
         try {
             $conn->beginTransaction(); //muai transaction database
@@ -54,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_mk'])) {
                 $ins->execute([$npm, $id_mk, $id_sem, $npm, $id_frs]);
             }
             $conn->commit();//simpan semua perubahan permanen
-            $_SESSION['frs_result'] = ['semester' => $semLabel, 'courses' => $jadwalSelected];//simpan hasil ke session
+            $_SESSION['frs_result'] = ['semester' => $semLabel, 'courses' => $MKSelected];//simpan hasil ke session
             header("Location: frs_sukses.php");
             exit;
         } catch (Exception $e) {
