@@ -40,17 +40,13 @@ if ($role != "dosen") {
 
 //jadwa keseluruhan semester ini
 $stmt = $conn->prepare("
-    SELECT mk.Id_MK, mk.Nama AS NamaMK, mk.SKS, j.Hari, j.Jam_Mulai, j.Jam_Selesai, d.Nama AS NamaDosen
-    FROM Jadwal j
-    JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
-    JOIN Dosen d ON j.NID = d.NID
-    WHERE j.Id_Sem = ? AND mk.Status_Aktif = 1
+    SELECT mk.Id_MK, mk.Nama AS NamaMK, mk.SKS, do.Nama AS NamaDosen
+    FROM MataKuliah AS mk 
+    JOIN Detail_Akademik AS da ON da.Id_MK = mk.Id_MK
+    JOIN Dosen AS do ON da.NID = do.NID
+    WHERE da.Id_Sem = ? AND mk.Status_Aktif = 1
     ORDER BY mk.Nama
 ");
-
-
-
-
 $stmt->execute([$id_sem]);
 $allCourses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -203,7 +199,7 @@ tr:hover{
     background:#f8fafc;
 }
 
-/* judul section "Seluruh Jadwal Semester Ini" */
+/* judul section "Seluruh Mata Kuliah Semester Ini" */
 .section-title{
     font-size:1.375rem;
     font-weight:700;
@@ -219,6 +215,7 @@ tr:hover{
     border-radius:0.375rem;
     font-size:0.875rem;
     font-weight:600;
+    margin-right:10px;
 }
 
 </style>
@@ -286,16 +283,25 @@ tr:hover{
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($allCourses as $mk): ?>
+                <?php foreach ($allCourses as $mk): 
+                    $jadwal = $conn->prepare("
+                        SELECT Hari, Jam_Mulai 
+                        FROM Jadwal 
+                        WHERE Id_MK = ? AND Id_Sem = ?");
+                    $jadwal->execute([$mk['Id_MK'], $id_sem]);
+                    $dataJadwal = $jadwal->fetchAll(PDO::FETCH_ASSOC);
+                ?>
                 <tr>
                     <td><?= htmlspecialchars($mk['Id_MK']) ?></td>
                     <td><?= htmlspecialchars($mk['NamaMK']) ?></td>
                     <td><?= $mk['SKS'] ?></td>
+                    
                     <td>
-                        <span class="jadwal-tag">
-                            <?= htmlspecialchars($mk['Hari']) ?>, <?= fmtTime($mk['Jam_Mulai']) ?>–<?= fmtTime($mk['Jam_Selesai']) ?>
-                        </span>
+                        <?php foreach ($dataJadwal as $j): ?>
+                            <span class="jadwal-tag"><?= htmlspecialchars($j['Hari']) ?>, <?= fmtTime($j['Jam_Mulai'])?>-<?= fmtTime($j['Jam_Mulai'])?> </span>
+                        <?php endforeach; ?>
                     </td>
+
                     <td><?= htmlspecialchars($mk['NamaDosen']) ?></td>
                 </tr>
                 <?php endforeach; ?>

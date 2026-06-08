@@ -10,7 +10,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $role     = trim($_POST["role"] ?? "");
 
     if ($role === 'mahasiswa') {
-        $stmt = $conn->prepare("SELECT NPM AS id_user, Email, Password, Nama FROM Mahasiswa WHERE Email = ?");
+        $stmt = $conn->prepare("SELECT NPM AS id_user, Email, Password, Nama 
+                                FROM Mahasiswa 
+                                WHERE Email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -25,7 +27,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $error = "Email atau password salah.";
         }
     } elseif ($role === 'dosen') {
-        $stmt = $conn->prepare("SELECT NID AS id_user, Email, Password, Nama FROM Dosen WHERE Email = ?");
+        $stmt = $conn->prepare("SELECT NID AS id_user, Email, Password, Nama 
+                                FROM Dosen 
+                                WHERE Email = ?");
         $stmt->execute([$email]);
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

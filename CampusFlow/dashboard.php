@@ -17,7 +17,9 @@ $semester = $_GET["semester"] ?? ($_SESSION["semester"] ?? "25");
 $id_sem = $semester . "-" . $periode;
 // $id_sem menyimpan kode semester aktif.
 // '26-1' adalah teks/string.
-$stmt = $conn->prepare("SELECT Periode, Tahun_Akademik FROM Semester WHERE Id_Sem = ?"); //ambil semester yang sedang berlangsung
+$stmt = $conn->prepare("SELECT Periode, Tahun_Akademik 
+                        FROM Semester 
+                        WHERE Id_Sem = ?"); //ambil semester yang sedang berlangsung
 $stmt->execute([$id_sem]);//execute = menjalankan query
 $sem = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -26,12 +28,16 @@ $sem = $stmt->fetch(PDO::FETCH_ASSOC);
 // query untuk mengambil database matakuliah yang dibuka pada frs sekaranhg
 $stmt = $conn->prepare("
     SELECT mk.Id_MK, mk.Nama AS NamaMK, mk.SKS, j.Hari, j.Jam_Mulai, j.Jam_Selesai, d.Nama AS NamaDosen,
-        (SELECT SUM(mk2.SKS) FROM MataKuliah mk2 WHERE mk2.Id_MK IN (SELECT DISTINCT Id_MK FROM Jadwal WHERE Id_Sem = ?)) AS TotalSKS
+        (SELECT SUM(mk2.SKS)
+        FROM MataKuliah mk2 
+        WHERE mk2.Id_MK IN (SELECT DISTINCT Id_MK FROM Jadwal WHERE Id_Sem = ?)) AS TotalSKS
     FROM Jadwal j
     JOIN MataKuliah mk ON j.Id_MK = mk.Id_MK
     JOIN Dosen d ON j.NID = d.NID
     WHERE j.Id_Sem = ? AND mk.Status_Aktif = 1
     ORDER BY mk.Nama
+
+    
 ");
 $stmt->execute([$id_sem, $id_sem]);
 $allCourses = $stmt->fetchAll(PDO::FETCH_ASSOC);//hasilnya dibuat array berdasarkan nama kolom, mengambil semua baris hasil query

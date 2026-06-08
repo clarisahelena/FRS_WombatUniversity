@@ -18,13 +18,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         elseif (strlen($password) > 25)            $error = 'Password maksimal 25 karakter.';
         elseif (strlen($nama) > 75)                $error = 'Nama maksimal 75 karakter.';
         else {
-            $stmt = $conn->prepare("SELECT NPM FROM Mahasiswa WHERE NPM = ? OR Email = ?");
+            $stmt = $conn->prepare("SELECT NPM 
+                                    FROM Mahasiswa 
+                                    WHERE NPM = ? OR Email = ?");
             $stmt->execute([$npm, $email]);
             if ($stmt->fetch()) {
                 $error = 'NPM atau email sudah terdaftar.';
             } else {
                 try {
-                    $conn->prepare("INSERT INTO Mahasiswa (NPM, Email, Password, Nama) VALUES (?, ?, ?, ?)")
+                    $conn->prepare("INSERT INTO Mahasiswa (NPM, Email, Password, Nama) 
+                                    VALUES (?, ?, ?, ?)")
                          ->execute([$npm, $email, $password, $nama]);
                     $success = true;
                 } catch (Exception $e) {
@@ -39,13 +42,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         elseif (strlen($password) > 25)             $error = 'Password maksimal 25 karakter.';
         elseif (strlen($nama) > 75)                 $error = 'Nama maksimal 75 karakter.';
         else {
-            $stmt = $conn->prepare("SELECT NID FROM Dosen WHERE NID = ? OR Email = ?");
+            $stmt = $conn->prepare("SELECT NID 
+                                    FROM Dosen 
+                                    WHERE NID = ? OR Email = ?");
             $stmt->execute([$nid, $email]);
             if ($stmt->fetch()) {
                 $error = 'NID atau email sudah terdaftar.';
             } else {
                 try {
-                    $conn->prepare("INSERT INTO Dosen (NID, Email, Password, Nama) VALUES (?, ?, ?, ?)")
+                    $conn->prepare("INSERT INTO Dosen (NID, Email, Password, Nama) 
+                                    VALUES (?, ?, ?, ?)")
                          ->execute([$nid, $email, $password, $nama]);
                     $success = true;
                 } catch (Exception $e) {
@@ -118,15 +124,16 @@ input[name="role"]{display:none}
     <form method="POST" id="regForm">
       <div class="form-group" id="field_npm">
         <label>NPM</label>
-        <input type="text" name="npm" placeholder="10 digit NPM" maxlength="10"
+        <input type="text" name="npm" placeholder="10 digit Nomor Pokok Mahasiswa" maxlength="10"
                value="<?= htmlspecialchars($_POST['npm'] ?? '') ?>">
         <div class="hint-text">Contoh: 6182829999</div>
       </div>
 
       <div class="form-group" id="field_nid">
         <label>NID</label>
-        <input type="text" name="nid" placeholder="Nomor Induk Dosen" maxlength="10"
+        <input type="text" name="nid" placeholder="10 digit Nomor Induk Dosen" maxlength="10"
                value="<?= htmlspecialchars($_POST['nid'] ?? '') ?>">
+                <div class="hint-text">Contoh: 2132454334</div>
       </div>
 
       <div class="form-group">
