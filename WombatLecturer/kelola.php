@@ -24,23 +24,44 @@ if (isset($_POST["ganti-semester"])) {
     exit;
 }
 
+//buat id semester dengan format tahun akademik (awal) - 1 untuk ganjil / 2 untuk genap
+$id_sem = ($_SESSION["semester"] ?? "25") . '-' . ($_SESSION["periode"] ?? "1");
+
 if (isset($_POST["hapus-mk"])) {
 
     $id_mk = $_POST["hapus-id-mk"];
 
     $hapusMK = $conn->prepare("
-        UPDATE MataKuliah
-        SET Status_Aktif = 0
-        WHERE Id_MK = ?
+        DELETE FROM Detail_Akademik
+        WHERE Id_MK = ? AND Id_Sem = ?
     ");
-    $hapusMK->execute([$id_mk]);
+    $hapusMK->execute([$id_mk, $id_sem]);
+
+    $hapusJadwal = $conn->prepare("
+        DELETE FROM Jadwal
+        WHERE Id_MK = ? AND Id_Sem = ?
+    ");
+    $hapusJadwal->execute([$id_mk, $id_sem]);
 
     header("Location: kelola.php");
     exit;
 }
 
-//buat id semester dengan format tahun akademik (awal) - 1 untuk ganjil / 2 untuk genap
-$id_sem = ($_SESSION["semester"] ?? "25") . '-' . ($_SESSION["periode"] ?? "1");
+if (isset($_POST["hapusMK-btn"])) {
+
+    $id_mkHapus = $_POST["mk-aktif"];
+
+    $hapusMKAktif = $conn->prepare("
+        UPDATE MataKuliah
+        SET Status_Aktif = 0
+        WHERE Id_MK = ?
+    ");
+    $hapusMKAktif->execute([$id_mkHapus]);
+
+    header("Location: kelola.php");
+    exit;
+}
+
 
 //query semester
 $stmt = $conn->prepare("
@@ -59,7 +80,7 @@ $stmtMK = $conn->prepare("
     JOIN Detail_Akademik AS da ON da.Id_MK=MK.Id_MK
     JOIN Dosen as d ON d.NID = da.NID
     LEFT JOIN Jadwal AS j ON j.Id_MK = MK.Id_MK AND j.Id_Sem = da.Id_Sem
-    WHERE da.Id_Sem = ?
+    WHERE da.Id_Sem = ? AND MK.Status_Aktif = 1
 ");
 $stmtMK->execute([$id_sem]);
 $rawCourses = $stmtMK->fetchAll(PDO::FETCH_ASSOC);
@@ -89,6 +110,16 @@ $aktifMK = $conn->prepare("
 ");
 $aktifMK->execute([$id_sem]);
 $dataMKaktif = $aktifMK->fetchAll(PDO::FETCH_ASSOC);
+
+//ambil semua mata kuliah sudah ada baik di semester ini maupun bukan yang diajar oleh dosen tertentu
+// tabel : mata kuliah dan detail akademik
+$aktifMKSemua = $conn->prepare("
+    SELECT Id_MK, Nama AS NamaMK, SKS
+    FROM MataKuliah MK
+    WHERE Status_Aktif = 1
+");
+$aktifMKSemua->execute();
+$dataMKaktifSemua = $aktifMKSemua->fetchAll(PDO::FETCH_ASSOC);
 
 //untuk menambah mata kuliah ke data base
 if(isset($_POST["tambah_mk"])) {
@@ -316,6 +347,22 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
 .ruangan3-group span:last-child{font-weight:700;color:#0f172a}
 .selesai3-group{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
 .selesai3-group span:last-child{font-weight:700;color:#0f172a}
+
+.hapusMK-card{background:#fff;border-radius:12px;box-shadow:0 1px 6px rgba(0,0,0,.08);overflow:hidden;top:24px; margin-top:20px}
+.hapusMK-banner{background:linear-gradient(135deg,#2563eb,#7c3aed);padding:24px;color:#fff}
+.hapusMK-lbl{font-weight:700;font-size:20px;opacity:.85;margin-bottom:6px;text-transform:uppercase;letter-spacing:.3px}
+.hapusMK-body{padding:20px}
+
+.kodeMKHapus-row{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
+.kodeMKHapus-row span:last-child{font-weight:700;color:#0f172a}
+.namaMKHapus-row{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
+.namaMKHapus-row span:last-child{font-weight:700;color:#0f172a}
+.sksMKHapus-row{display:flex;justify-content:space-between;font-size:16px;color:#475569;margin-bottom:14px}
+.sksMKHapus-row span:last-child{font-weight:700;color:#0f172a}
+
+.hapusMK-btn{width:100%;border:none;border-radius:10px;padding:16px;font-size:17px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:20px;}
+.hapusMK-btn.disabled{background:#e2e8f0;color:#94a3b8;cursor:not-allowed}
+.hapusMK-btn.active{background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;box-shadow:0 4px 14px rgba(37,99,235,.3)}
 
 </style>
 </head>
@@ -603,6 +650,69 @@ body{background:#f1f5f9;min-height:100vh;display:flex;flex-direction:column}
                 </script>
         </div>
         </div>
+        <div class="hapusMK-card">
+        <div class="hapusMK-banner">
+           <div class="hapusMK-lbl">Hapus Mata Kuliah</div>
+        </div>
+        <div class = "hapusMK-body">
+            <div class="hapus-row">
+                 <span>Pilih mata kuliah yang ingin dihapus (untuk seluruh semester)</span>
+            </div>
+                <form method="POST">
+                    <select name="mk-aktif" id="mk-aktif" onchange="hapusDataMK()">
+                        <option value="">
+                            -- Pilih Mata Kuliah --
+                        </option>
+
+                        <?php foreach($dataMKaktifSemua as $d): ?>
+
+                            <option 
+                                value="<?= htmlspecialchars($d['Id_MK']) ?>"
+                                data-namaMK ="<?= htmlspecialchars($d['NamaMK']) ?>"
+                                data-sks="<?= htmlspecialchars($d['SKS']) ?>"
+                            >
+                                <?= htmlspecialchars($d['NamaMK']) ?>
+                            </option>
+                        <?php endforeach; ?> 
+                    </select> 
+                    <div class="kodeMKHapus-row">
+                        <span>Kode Mata Kuliah</span>
+                        <span id="text-kode">-</span>
+                    </div>
+
+                    <div class="namaMKHapus-row">
+                        <span>Nama Mata Kuliah</span>
+                        <span id="text-nama">-</span>
+                    </div>
+
+                    <div class="sksMKHapus-row">
+                        <span>SKS Mata Kuliah</span>
+                        <span id="text-sks">-</span>
+                    </div>
+                        <button type="submit" name="hapusMK-btn" class="hapusMK-btn active">
+                            Hapus Mata Kuliah
+                        </button>
+
+                </form>
+                    <script>
+                        function hapusDataMK() {
+                            let dropdown = document.getElementById("mk-aktif");
+                            let selected = dropdown.options[dropdown.selectedIndex];
+
+                            if(selected.value == "") {
+                                document.getElementById("text-kode").innerText = "-";
+                                document.getElementById("text-nama").innerText = "-";
+                                document.getElementById("text-sks").innerText = "-";
+                                return;
+                            }
+
+                            document.getElementById("text-kode").innerText = selected.value;
+                            document.getElementById("text-nama").innerText = selected.getAttribute("data-namaMK");
+                            document.getElementById("text-sks").innerText = selected.getAttribute("data-sks");
+                        }
+                    </script>
+        </div>
+    </div>
   </div>
 </div>
 

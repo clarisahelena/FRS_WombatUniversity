@@ -19,7 +19,7 @@ $stmt = $conn->prepare("
     JOIN Semester s ON e.Id_Sem = s.Id_Sem
     JOIN MataKuliah mk ON e.Id_MK = mk.Id_MK
     JOIN Jadwal j ON j.Id_MK = mk.Id_MK AND j.Id_Sem = e.Id_Sem
-    WHERE e.NPM = ? AND mk.Status_Aktif = 1
+    WHERE e.NPM = ? 
     ORDER BY s.Tahun_Akademik DESC, s.Periode DESC, mk.Nama
 ");
 $stmt->execute([$npm]);
